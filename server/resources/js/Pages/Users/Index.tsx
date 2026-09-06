@@ -21,6 +21,26 @@ export default function Index({ auth, users, permissions }: { auth: any, users: 
         });
     };
 
+    const [editingUser, setEditingUser] = useState<any>(null);
+    const { data: editData, setData: setEditData, patch, processing: editProcessing, reset: resetEdit } = useForm({
+        permissions: [] as string[],
+    });
+
+    const openEdit = (user: any) => {
+        setEditingUser(user);
+        setEditData('permissions', user.permissions.map((p: any) => p.name));
+    };
+
+    const submitEdit = (e: React.FormEvent) => {
+        e.preventDefault();
+        patch(route('users.update', editingUser.id), {
+            onSuccess: () => {
+                setEditingUser(null);
+                resetEdit();
+            },
+        });
+    };
+
     return (
         <AuthenticatedLayout
             header={<h2 className="text-xl font-semibold leading-tight text-gray-800">User Management</h2>}
@@ -64,6 +84,35 @@ export default function Index({ auth, users, permissions }: { auth: any, users: 
                             </form>
                         )}
 
+                        {editingUser && (
+                            <form onSubmit={submitEdit} className="mb-8 p-4 bg-gray-50 rounded border">
+                                <h4 className="text-md font-medium mb-4">Edit Permissions for {editingUser.name}</h4>
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                    {permissions.map((p) => (
+                                        <div key={p.id} className="flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                id={`perm-${p.id}`}
+                                                className="rounded border-gray-300 text-indigo-600 shadow-sm"
+                                                checked={editData.permissions.includes(p.name)}
+                                                onChange={(e) => {
+                                                    const newPerms = e.target.checked
+                                                        ? [...editData.permissions, p.name]
+                                                        : editData.permissions.filter(name => name !== p.name);
+                                                    setEditData('permissions', newPerms);
+                                                }}
+                                            />
+                                            <label htmlFor={`perm-${p.id}`} className="ml-2 text-sm text-gray-700">{p.name}</label>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-4 flex justify-end gap-2">
+                                    <Button type="button" variant="outline" onClick={() => setEditingUser(null)}>Cancel</Button>
+                                    <Button type="submit" disabled={editProcessing}>Save Permissions</Button>
+                                </div>
+                            </form>
+                        )}
+
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
@@ -86,7 +135,7 @@ export default function Index({ auth, users, permissions }: { auth: any, users: 
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <Button variant="outline" size="sm" className="mr-2 text-indigo-600">Edit Permissions</Button>
+                                                <Button variant="outline" size="sm" className="mr-2 text-indigo-600" onClick={() => openEdit(user)}>Edit Permissions</Button>
                                             </td>
                                         </tr>
                                     ))}
