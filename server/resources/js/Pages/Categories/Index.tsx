@@ -94,3 +94,4 @@ export default function Index({ auth, categories }: Props) {
         </AuthenticatedLayout>
     );
 }
+

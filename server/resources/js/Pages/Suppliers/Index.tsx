@@ -119,3 +119,4 @@ export default function Index({ auth, suppliers }: Props) {
         </AuthenticatedLayout>
     );
 }
+
