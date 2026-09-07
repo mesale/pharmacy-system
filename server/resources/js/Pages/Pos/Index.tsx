@@ -261,3 +261,4 @@ export default function Index({ auth, products, flash }: Props) {
         </AuthenticatedLayout>
     );
 }
+
