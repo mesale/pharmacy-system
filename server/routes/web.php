@@ -25,6 +25,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/products', [\App\Http\Controllers\ProductController::class, 'index'])->name('products.index');
     Route::get('/products/{product}', [\App\Http\Controllers\ProductController::class, 'show'])->name('products.show');
     
+    // Workers can close their shift
+    Route::get('/reconciliation/create', [\App\Http\Controllers\CashReconciliationController::class, 'create'])->name('reconciliation.create');
+    Route::post('/reconciliation', [\App\Http\Controllers\CashReconciliationController::class, 'store'])->name('reconciliation.store');
+    
     // Workers can adjust stock
     Route::post('/batches/{batch}/adjustments', [\App\Http\Controllers\StockAdjustmentController::class, 'store'])->name('adjustments.store');
 

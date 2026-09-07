@@ -124,3 +124,4 @@ export default function Index({ auth, groupedSuggestions }: Props) {
         </AdminLayout>
     );
 }
+

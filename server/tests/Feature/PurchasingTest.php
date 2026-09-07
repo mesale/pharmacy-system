@@ -90,3 +90,4 @@ class PurchasingTest extends TestCase
         $response->assertStatus(403);
     }
 }
+
