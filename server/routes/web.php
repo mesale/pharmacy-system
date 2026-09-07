@@ -23,7 +23,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/categories', [\App\Http\Controllers\CategoryController::class, 'index'])->name('categories.index');
     Route::get('/suppliers', [\App\Http\Controllers\SupplierController::class, 'index'])->name('suppliers.index');
     Route::get('/products', [\App\Http\Controllers\ProductController::class, 'index'])->name('products.index');
-    Route::get('/products/{product}', [\App\Http\Controllers\ProductController::class, 'show'])->name('products.show');
+    // Constrained to a numeric id so that /products/create is not captured
+    // here as a product named "create".
+    Route::get('/products/{product}', [\App\Http\Controllers\ProductController::class, 'show'])
+        ->whereNumber('product')
+        ->name('products.show');
     
     // Workers can close their shift
     Route::get('/reconciliation/create', [\App\Http\Controllers\CashReconciliationController::class, 'create'])->name('reconciliation.create');
@@ -53,6 +57,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('/suppliers/{supplier}', [\App\Http\Controllers\SupplierController::class, 'update'])->name('suppliers.update');
         Route::delete('/suppliers/{supplier}', [\App\Http\Controllers\SupplierController::class, 'destroy'])->name('suppliers.destroy');
 
+        Route::get('/products/create', [\App\Http\Controllers\ProductController::class, 'create'])->name('products.create');
+        Route::get('/products/{product}/edit', [\App\Http\Controllers\ProductController::class, 'edit'])->whereNumber('product')->name('products.edit');
         Route::post('/products', [\App\Http\Controllers\ProductController::class, 'store'])->name('products.store');
         Route::patch('/products/{product}', [\App\Http\Controllers\ProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [\App\Http\Controllers\ProductController::class, 'destroy'])->name('products.destroy');

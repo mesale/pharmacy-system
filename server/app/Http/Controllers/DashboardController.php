@@ -2,77 +2,104 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use App\Models\Sale;
 use App\Models\Product;
+use App\Models\Sale;
 use App\Models\StockBatch;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
+    /**
+     * Sellable stock for the product row being selected, as a correlated
+     * subquery. Doing this in SQL avoids loading the whole catalogue into
+     * memory just to find the products that are running low.
+     */
+    private const SELLABLE_STOCK = '(SELECT COALESCE(SUM(sb.quantity), 0)
+        FROM stock_batches sb
+        WHERE sb.product_id = products.id AND sb.quantity > 0 AND sb.expiry_date >= ?)';
+
     public function index(Request $request)
     {
         // If the user is just a worker, redirect them to the POS terminal.
-        if (!$request->user()->hasRole('admin')) {
+        if (! $request->user()->hasRole('admin')) {
             return redirect()->route('pos.index');
         }
 
-        $today = Carbon::today();
+        $today = Carbon::today()->toDateString();
+        $soon = Carbon::today()->addDays(30)->toDateString();
 
-        $grossSalesToday = Sale::whereDate('created_at', $today)->sum('total_amount');
-        $netProfitToday = Sale::whereDate('created_at', $today)->sum('profit');
-        $transactionCountToday = Sale::whereDate('created_at', $today)->count();
+        $todayTotals = Sale::whereDate('created_at', $today)
+            ->selectRaw('COALESCE(SUM(total_amount), 0) as revenue')
+            ->selectRaw('COALESCE(SUM(profit), 0) as profit')
+            ->selectRaw('COUNT(*) as transactions')
+            ->first();
 
-        // Expiring batches (within 30 days)
-        $expiringBatchesCount = StockBatch::where('quantity', '>', 0)
-            ->where('expiry_date', '<=', Carbon::today()->addDays(30))
+        // Expired stock is a separate, more urgent problem than stock that is
+        // merely approaching its expiry date, so the two are counted apart.
+        $expiredBatchesCount = StockBatch::where('quantity', '>', 0)
+            ->whereDate('expiry_date', '<', $today)
             ->count();
 
-        // Low stock products (total stock < reorder level)
-        // This is a bit complex in Eloquent without a raw query or joining, so we can fetch products with their sum.
-        $productsWithStock = Product::withSum('stockBatches as total_stock', 'quantity')->get();
-        $lowStockProducts = $productsWithStock->filter(function ($product) {
-            return $product->total_stock < $product->reorder_level;
-        });
+        $expiringBatchesCount = StockBatch::where('quantity', '>', 0)
+            ->whereDate('expiry_date', '>=', $today)
+            ->whereDate('expiry_date', '<=', $soon)
+            ->count();
 
-        // Get 10 critical alerts (low stock or expiring soon) for the table
+        // `<=` matches the reorder threshold used by the purchasing suggestions.
+        $lowStock = fn () => Product::query()
+            ->whereRaw(self::SELLABLE_STOCK . ' <= products.reorder_level', [$today])
+            ->where('reorder_level', '>', 0);
+
+        $lowStockCount = $lowStock()->count();
+
         $criticalAlerts = [];
-        
-        foreach ($lowStockProducts->take(5) as $product) {
+
+        $lowStockProducts = $lowStock()
+            ->selectRaw('products.*, ' . self::SELLABLE_STOCK . ' as total_stock', [$today])
+            ->orderBy('name')
+            ->take(5)
+            ->get();
+
+        foreach ($lowStockProducts as $product) {
             $criticalAlerts[] = [
                 'type' => 'low_stock',
                 'product' => $product->name,
                 'barcode' => $product->barcode,
-                'current_stock' => $product->total_stock,
-                'threshold' => $product->reorder_level,
+                'current_stock' => (int) $product->total_stock,
+                'threshold' => (int) $product->reorder_level,
                 'message' => 'URGENT DEFICIT',
             ];
         }
 
-        $expiringBatchesList = StockBatch::with('product')
+        $expiryAlerts = StockBatch::with('product:id,name')
             ->where('quantity', '>', 0)
-            ->where('expiry_date', '<=', Carbon::today()->addDays(30))
-            ->orderBy('expiry_date', 'asc')
+            ->whereDate('expiry_date', '<=', $soon)
+            ->orderBy('expiry_date')
             ->take(5)
             ->get();
 
-        foreach ($expiringBatchesList as $batch) {
+        foreach ($expiryAlerts as $batch) {
+            $isExpired = $batch->expiry_date->isBefore(Carbon::today());
+
             $criticalAlerts[] = [
-                'type' => 'expiring',
-                'product' => $batch->product->name,
+                'type' => $isExpired ? 'expired' : 'expiring',
+                'product' => $batch->product?->name,
                 'batch_number' => $batch->batch_number,
-                'quantity' => $batch->quantity,
-                'expiry_date' => $batch->expiry_date,
-                'message' => 'FEFO WARNING',
+                'quantity' => (int) $batch->quantity,
+                'expiry_date' => $batch->expiry_date->toDateString(),
+                'message' => $isExpired ? 'EXPIRED — WRITE OFF' : 'FEFO WARNING',
             ];
         }
 
         return Inertia::render('Dashboard', [
-            'grossSalesToday' => $grossSalesToday,
-            'netProfitToday' => $netProfitToday,
-            'transactionCountToday' => $transactionCountToday,
+            'grossSalesToday' => (float) $todayTotals->revenue,
+            'netProfitToday' => (float) $todayTotals->profit,
+            'transactionCountToday' => (int) $todayTotals->transactions,
             'expiringBatchesCount' => $expiringBatchesCount,
+            'expiredBatchesCount' => $expiredBatchesCount,
+            'lowStockCount' => $lowStockCount,
             'criticalAlerts' => $criticalAlerts,
         ]);
     }

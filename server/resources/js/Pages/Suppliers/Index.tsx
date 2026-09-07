@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, useForm } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
 
 interface Supplier {
     id: number;
@@ -42,69 +41,81 @@ export default function Index({ auth, suppliers }: Props) {
         <AdminLayout>
             <Head title="Suppliers" />
 
-            <div className="py-12">
+            <div className="py-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg p-6">
+                    <div className="overflow-hidden bg-surface-raised border border-border-subtle p-gap-md shadow">
                         
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-medium text-gray-900">Suppliers</h3>
+                        <div className="flex justify-between items-center mb-gap-md">
+                            <div className="flex items-center gap-gap-sm text-text-primary">
+                                <span className="material-symbols-outlined">hub</span>
+                                <h3 className="text-lg font-bold uppercase tracking-wider">Suppliers</h3>
+                            </div>
                             {isAdmin && (
-                                <Button onClick={() => setIsCreating(!isCreating)}>
+                                <button 
+                                    onClick={() => setIsCreating(!isCreating)}
+                                    className={`font-bold uppercase tracking-wider text-sm px-4 py-2 flex items-center gap-1 transition-colors border ${isCreating ? 'bg-surface-overlay text-text-secondary border-border-strong hover:text-primary' : 'bg-primary text-on-primary border-primary hover:bg-primary-hover'}`}
+                                >
+                                    <span className="material-symbols-outlined text-sm">{isCreating ? 'close' : 'add'}</span>
                                     {isCreating ? 'Cancel' : 'Add Supplier'}
-                                </Button>
+                                </button>
                             )}
                         </div>
 
                         {isCreating && (
-                            <form onSubmit={submit} className="mb-8 p-4 bg-gray-50 rounded border">
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-4">
+                            <form onSubmit={submit} className="mb-gap-lg p-gap-md bg-surface-overlay border border-primary">
+                                <div className="grid grid-cols-1 gap-gap-md sm:grid-cols-2 lg:grid-cols-4 mb-gap-md">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Name *</label>
-                                        <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" value={data.name} onChange={e => setData('name', e.target.value)} required />
-                                        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                                        <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Name *</label>
+                                        <input type="text" className="block w-full bg-surface-base border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm" value={data.name} onChange={e => setData('name', e.target.value)} required />
+                                        {errors.name && <p className="text-status-critical text-xs mt-1 font-bold">{errors.name}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Phone</label>
-                                        <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" value={data.phone} onChange={e => setData('phone', e.target.value)} />
+                                        <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Phone</label>
+                                        <input type="text" className="block w-full bg-surface-base border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm" value={data.phone} onChange={e => setData('phone', e.target.value)} />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Email</label>
-                                        <input type="email" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" value={data.email} onChange={e => setData('email', e.target.value)} />
+                                        <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Email</label>
+                                        <input type="email" className="block w-full bg-surface-base border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm" value={data.email} onChange={e => setData('email', e.target.value)} />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Address</label>
-                                        <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" value={data.address} onChange={e => setData('address', e.target.value)} />
+                                        <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Address</label>
+                                        <input type="text" className="block w-full bg-surface-base border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm" value={data.address} onChange={e => setData('address', e.target.value)} />
                                     </div>
                                 </div>
                                 <div className="flex justify-end">
-                                    <Button type="submit" disabled={processing}>Save Supplier</Button>
+                                    <button type="submit" disabled={processing} className="bg-primary text-on-primary hover:bg-primary-hover transition-colors font-bold uppercase tracking-wider text-sm px-6 py-2 flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-sm">save</span> Save Supplier
+                                    </button>
                                 </div>
                             </form>
                         )}
 
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
+                        <div className="overflow-x-auto border border-border-subtle bg-surface-base">
+                            <table className="min-w-full divide-y divide-border-subtle">
+                                <thead className="bg-surface-container">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
-                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Batches Provided</th>
+                                        <th className="px-gap-md py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Name</th>
+                                        <th className="px-gap-md py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Contact</th>
+                                        <th className="px-gap-md py-3 text-right text-xs font-bold text-text-secondary uppercase tracking-wider">Batches Provided</th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
+                                <tbody className="divide-y divide-border-subtle bg-surface-base">
                                     {suppliers.map((supplier) => (
-                                        <tr key={supplier.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{supplier.name}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <div>{supplier.phone || 'No phone'}</div>
-                                                <div>{supplier.email || 'No email'}</div>
+                                        <tr key={supplier.id} className="hover:bg-surface-container-low transition-colors">
+                                            <td className="px-gap-md py-4 whitespace-nowrap text-sm font-bold text-text-primary">{supplier.name}</td>
+                                            <td className="px-gap-md py-4 whitespace-nowrap text-sm text-text-secondary">
+                                                <div className="flex items-center gap-1 mb-1"><span className="material-symbols-outlined text-sm">phone</span> {supplier.phone || '—'}</div>
+                                                <div className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">email</span> {supplier.email || '—'}</div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">{supplier.stock_batches_count}</td>
+                                            <td className="px-gap-md py-4 whitespace-nowrap text-sm text-right font-bold text-primary">{supplier.stock_batches_count}</td>
                                         </tr>
                                     ))}
                                     {suppliers.length === 0 && (
                                         <tr>
-                                            <td colSpan={3} className="px-6 py-8 text-center text-gray-400">No suppliers found.</td>
+                                            <td colSpan={3} className="px-gap-md py-8 text-center text-text-muted flex-col items-center flex">
+                                                <span className="material-symbols-outlined text-4xl mb-2">hub</span>
+                                                No suppliers found.
+                                            </td>
                                         </tr>
                                     )}
                                 </tbody>

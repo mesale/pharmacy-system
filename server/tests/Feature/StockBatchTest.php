@@ -29,8 +29,8 @@ class StockBatchTest extends TestCase
             'batch_number' => 'BATCH-002',
             'cost_price' => 10.00,
             'quantity' => 50,
-            'expiry_date' => '2025-12-31',
-            'received_date' => '2024-01-01',
+            'expiry_date' => now()->addMonths(12)->toDateString(),
+            'received_date' => now()->subMonth()->toDateString(),
         ]);
 
         // Create a batch that expires sooner
@@ -39,8 +39,8 @@ class StockBatchTest extends TestCase
             'batch_number' => 'BATCH-001',
             'cost_price' => 10.00,
             'quantity' => 20,
-            'expiry_date' => '2025-06-30',
-            'received_date' => '2024-01-01',
+            'expiry_date' => now()->addMonths(6)->toDateString(),
+            'received_date' => now()->subMonth()->toDateString(),
         ]);
 
         $batches = $product->stockBatches; // Relies on the default relationship ordering

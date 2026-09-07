@@ -99,7 +99,7 @@ class UserManagementTest extends TestCase
 
         $response = $this->actingAs($admin)->delete(route('users.destroy', $admin));
 
-        $response->assertSessionHasErrors(['error']);
+        $response->assertSessionHasErrors(['user']);
         
         $this->assertDatabaseHas('users', [
             'id' => $admin->id,

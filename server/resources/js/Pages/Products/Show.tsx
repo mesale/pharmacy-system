@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
+import AdminLayout from '@/Layouts/AdminLayout';
+import { Head, useForm } from '@inertiajs/react';
+import { Button } from '@/Components/ui/button';
 
 interface StockBatch {
     id: number;
     batch_number: string;
-    cost_price: string;
+    // Omitted by the server for non-admins: cost reveals the pharmacy's margin.
+    cost_price?: string;
     quantity: number;
     expiry_date: string;
     received_date: string;
@@ -35,20 +36,58 @@ interface Props {
     auth: any;
     product: Product;
     suppliers: Supplier[];
+    canViewCost: boolean;
 }
 
-export default function Show({ auth, product, suppliers }: Props) {
+const INPUT_CLASS =
+    'mt-1 block w-full bg-surface-base border border-border-strong text-text-primary ' +
+    'placeholder:text-text-muted focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm';
+const LABEL_CLASS =
+    'block text-xs font-bold text-text-secondary uppercase tracking-wider';
+const ERROR_CLASS = 'text-status-critical text-xs mt-1 font-bold';
+
+/** Today as YYYY-MM-DD, to compare against the date-only expiry column. */
+const today = () => new Date().toISOString().slice(0, 10);
+
+/**
+ * Mirrors the server's `sellableBatches` scope (`expiry_date >= today`), so a
+ * batch expiring today still counts. Comparing the date strings avoids the
+ * off-by-one that a millisecond diff introduces for same-day expiries.
+ */
+const isExpired = (expiryDate: string) => expiryDate.slice(0, 10) < today();
+
+export default function Show({ auth, product, suppliers, canViewCost }: Props) {
     const [showBatchForm, setShowBatchForm] = useState(false);
     const isAdmin = auth.user?.roles?.includes('admin');
 
-    const totalStock = product.stock_batches.reduce((sum, b) => sum + b.quantity, 0);
+    // Only sellable units are "on hand". Summing every batch counted expired and
+    // emptied stock as available, so this figure contradicted the product list,
+    // which uses the server-side sellable total.
+    const sellableBatches = product.stock_batches.filter(
+        (b) => b.quantity > 0 && !isExpired(b.expiry_date),
+    );
+    const totalStock = sellableBatches.reduce((sum, b) => sum + b.quantity, 0);
+
+    // The batch FEFO will actually dispense from next: earliest-expiring batch
+    // that still has stock and has not expired. Previously the first row of the
+    // table was labelled the priority regardless, which pointed at an expired
+    // or empty batch whenever one sorted first.
+    const priorityBatchId = sellableBatches[0]?.id;
+
+    const isLowStock = totalStock <= product.reorder_level;
+    // A reorder level of 0 would make the bar's denominator 0 and the width NaN.
+    const stockBarWidth = product.reorder_level > 0
+        ? Math.min((totalStock / (product.reorder_level * 3)) * 100, 100)
+        : totalStock > 0 ? 100 : 0;
+
+    const columnCount = canViewCost ? 8 : 6;
 
     const { data, setData, post, processing, errors, reset } = useForm({
         batch_number: '',
         cost_price: '',
         quantity: '',
         expiry_date: '',
-        received_date: new Date().toISOString().split('T')[0],
+        received_date: today(),
         supplier_id: '',
     });
 
@@ -88,169 +127,190 @@ export default function Show({ auth, product, suppliers }: Props) {
         <AdminLayout>
             <Head title={product.name} />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-6">
+            <div className="py-6">
+                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-gap-lg">
 
                     {/* Product Info Card */}
-                    <div className="bg-white shadow-sm sm:rounded-lg p-6">
+                    <div className="bg-surface-raised border border-border-subtle p-gap-md shadow">
                         <div className="flex flex-wrap justify-between items-start gap-4">
                             <div>
-                                <div className="flex items-center gap-2 mb-2">
+                                <div className="flex items-center gap-gap-sm mb-2">
                                     {product.requires_prescription && (
-                                        <span className="px-2 py-0.5 text-xs font-semibold rounded bg-blue-100 text-blue-800">Rx Required</span>
+                                        <span className="px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider bg-status-info-bg text-status-info border border-status-info">Rx Required</span>
                                     )}
                                     {product.is_controlled && (
-                                        <span className="px-2 py-0.5 text-xs font-semibold rounded bg-red-100 text-red-800">Controlled</span>
+                                        <span className="px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider bg-status-critical-bg text-status-critical border border-status-critical">Controlled</span>
                                     )}
                                     {product.category && (
-                                        <span className="px-2 py-0.5 text-xs font-semibold rounded bg-gray-100 text-gray-700">{product.category.name}</span>
+                                        <span className="px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider bg-surface-container text-on-surface-variant border border-border-subtle">{product.category.name}</span>
                                     )}
                                 </div>
-                                <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
-                                <p className="text-sm text-gray-500 mt-1">
+                                <h1 className="font-headline-lg text-headline-lg text-text-primary">{product.name}</h1>
+                                <p className="text-sm text-text-muted mt-1">
                                     Barcode: <span className="font-mono">{product.barcode || 'N/A'}</span> · Unit: {product.unit}
                                 </p>
                             </div>
                             <div className="text-right">
-                                <div className="text-sm text-gray-500">Selling Price</div>
-                                <div className="text-3xl font-bold text-indigo-600">${product.selling_price}</div>
+                                <div className="text-xs font-bold text-text-secondary uppercase tracking-wider">Selling Price</div>
+                                <div className="font-data-tabular-lg text-data-tabular-lg text-primary">${product.selling_price}</div>
                             </div>
                         </div>
 
                         {/* Stock Summary Bar */}
-                        <div className="mt-6 bg-gray-50 rounded p-4">
+                        <div className="mt-gap-lg bg-surface-overlay border border-border-subtle p-gap-md">
                             <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-gray-700">Inventory Health</span>
-                                <span className={`text-sm font-bold ${totalStock <= product.reorder_level ? 'text-red-600' : 'text-green-600'}`}>
-                                    {totalStock} units on hand (Reorder at {product.reorder_level})
+                                <span className="text-xs font-bold text-text-secondary uppercase tracking-wider">Inventory Health</span>
+                                <span className={`text-sm font-bold ${isLowStock ? 'text-status-critical' : 'text-status-success'}`}>
+                                    {totalStock} sellable units on hand (Reorder at {product.reorder_level})
                                 </span>
                             </div>
-                            <div className="w-full h-3 bg-gray-200 rounded overflow-hidden">
+                            <div className="w-full h-3 bg-surface-container-high overflow-hidden">
                                 <div
-                                    className={`h-full ${totalStock <= product.reorder_level ? 'bg-red-500' : 'bg-green-500'}`}
-                                    style={{ width: `${Math.min((totalStock / (product.reorder_level * 3)) * 100, 100)}%` }}
+                                    className={`h-full transition-all ${isLowStock ? 'bg-status-critical' : 'bg-status-success'}`}
+                                    style={{ width: `${stockBarWidth}%` }}
                                 />
                             </div>
                         </div>
                     </div>
 
                     {/* FEFO Batch Table */}
-                    <div className="bg-white shadow-sm sm:rounded-lg p-6">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-medium text-gray-900">FEFO Batch Ledger</h3>
+                    <div className="bg-surface-raised border border-border-subtle p-gap-md shadow">
+                        <div className="flex justify-between items-center mb-gap-md">
+                            <h3 className="font-headline-sm text-headline-sm text-text-primary uppercase tracking-wider">FEFO Batch Ledger</h3>
                             {isAdmin && (
-                                <Button onClick={() => setShowBatchForm(!showBatchForm)}>
+                                <Button onClick={() => setShowBatchForm(!showBatchForm)} variant={showBatchForm ? 'outline' : 'default'}>
                                     {showBatchForm ? 'Cancel' : 'Receive New Batch'}
                                 </Button>
                             )}
                         </div>
 
                         {showBatchForm && (
-                            <form onSubmit={submitBatch} className="mb-6 p-4 bg-gray-50 rounded border">
-                                <h4 className="text-md font-medium mb-4">Batch Intake</h4>
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                            <form onSubmit={submitBatch} className="mb-gap-lg p-gap-md bg-surface-overlay border border-primary">
+                                <h4 className="text-md font-bold text-text-primary uppercase tracking-wider mb-gap-md">Batch Intake</h4>
+                                <div className="grid grid-cols-1 gap-gap-md sm:grid-cols-3">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Batch Number *</label>
-                                        <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" value={data.batch_number} onChange={e => setData('batch_number', e.target.value)} required />
-                                        {errors.batch_number && <p className="text-red-500 text-xs mt-1">{errors.batch_number}</p>}
+                                        <label className={LABEL_CLASS}>Batch Number *</label>
+                                        <input type="text" className={INPUT_CLASS} value={data.batch_number} onChange={e => setData('batch_number', e.target.value)} required />
+                                        {errors.batch_number && <p className={ERROR_CLASS}>{errors.batch_number}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Supplier</label>
-                                        <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" value={data.supplier_id} onChange={e => setData('supplier_id', e.target.value)}>
+                                        <label className={LABEL_CLASS}>Supplier</label>
+                                        <select className={INPUT_CLASS} value={data.supplier_id} onChange={e => setData('supplier_id', e.target.value)}>
                                             <option value="">Select supplier</option>
                                             {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                         </select>
+                                        {errors.supplier_id && <p className={ERROR_CLASS}>{errors.supplier_id}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Cost Price *</label>
-                                        <input type="number" step="0.01" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" value={data.cost_price} onChange={e => setData('cost_price', e.target.value)} required />
-                                        {errors.cost_price && <p className="text-red-500 text-xs mt-1">{errors.cost_price}</p>}
+                                        <label className={LABEL_CLASS}>Cost Price *</label>
+                                        <input type="number" step="0.01" min="0" className={INPUT_CLASS} value={data.cost_price} onChange={e => setData('cost_price', e.target.value)} required />
+                                        {errors.cost_price && <p className={ERROR_CLASS}>{errors.cost_price}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Quantity *</label>
-                                        <input type="number" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" value={data.quantity} onChange={e => setData('quantity', e.target.value)} required />
-                                        {errors.quantity && <p className="text-red-500 text-xs mt-1">{errors.quantity}</p>}
+                                        <label className={LABEL_CLASS}>Quantity *</label>
+                                        <input type="number" min="1" className={INPUT_CLASS} value={data.quantity} onChange={e => setData('quantity', e.target.value)} required />
+                                        {errors.quantity && <p className={ERROR_CLASS}>{errors.quantity}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Expiry Date *</label>
-                                        <input type="date" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" value={data.expiry_date} onChange={e => setData('expiry_date', e.target.value)} required />
-                                        {errors.expiry_date && <p className="text-red-500 text-xs mt-1">{errors.expiry_date}</p>}
+                                        <label className={LABEL_CLASS}>Expiry Date *</label>
+                                        <input type="date" className={INPUT_CLASS} value={data.expiry_date} onChange={e => setData('expiry_date', e.target.value)} required />
+                                        {errors.expiry_date && <p className={ERROR_CLASS}>{errors.expiry_date}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Received Date *</label>
-                                        <input type="date" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" value={data.received_date} onChange={e => setData('received_date', e.target.value)} required />
+                                        <label className={LABEL_CLASS}>Received Date *</label>
+                                        <input type="date" className={INPUT_CLASS} value={data.received_date} onChange={e => setData('received_date', e.target.value)} required />
+                                        {errors.received_date && <p className={ERROR_CLASS}>{errors.received_date}</p>}
                                     </div>
                                 </div>
-                                <div className="mt-4 flex justify-end">
+                                <div className="mt-gap-md flex justify-end">
                                     <Button type="submit" disabled={processing}>Save Batch</Button>
                                 </div>
                             </form>
                         )}
 
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
+                        <div className="overflow-x-auto border border-border-subtle bg-surface-base">
+                            <table className="min-w-full divide-y divide-border-subtle">
+                                <thead className="bg-surface-container">
                                     <tr>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">FEFO Priority</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Batch #</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Supplier</th>
-                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Qty</th>
-                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Cost</th>
-                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Margin</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expiry</th>
-                                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
-                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">FEFO Priority</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Supplier</th>
+                                        <th className="px-4 py-3 text-right text-xs font-bold text-text-secondary uppercase tracking-wider">Qty</th>
+                                        {canViewCost && <th className="px-4 py-3 text-right text-xs font-bold text-text-secondary uppercase tracking-wider">Cost</th>}
+                                        {canViewCost && <th className="px-4 py-3 text-right text-xs font-bold text-text-secondary uppercase tracking-wider">Margin</th>}
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Expiry</th>
+                                        <th className="px-4 py-3 text-center text-xs font-bold text-text-secondary uppercase tracking-wider">Status</th>
+                                        <th className="px-4 py-3 text-right text-xs font-bold text-text-secondary uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
+                                <tbody className="divide-y divide-border-subtle bg-surface-base">
                                     {product.stock_batches.map((batch, index) => {
                                         const days = daysUntilExpiry(batch.expiry_date);
-                                        const margin = ((parseFloat(product.selling_price) - parseFloat(batch.cost_price)) / parseFloat(batch.cost_price) * 100).toFixed(1);
+                                        const expired = isExpired(batch.expiry_date);
+                                        const cost = parseFloat(batch.cost_price ?? '0');
+                                        const margin = cost > 0
+                                            ? ((parseFloat(product.selling_price) - cost) / cost * 100).toFixed(1)
+                                            : '0.0';
+                                        const isPriority = batch.id === priorityBatchId;
+                                        const depleted = batch.quantity <= 0;
+
                                         return (
-                                            <tr key={batch.id} className={index === 0 ? 'bg-yellow-50' : ''}>
+                                            <tr
+                                                key={batch.id}
+                                                className={`${isPriority ? 'bg-status-warning-bg/30' : ''} ${expired || depleted ? 'opacity-60' : ''} hover:bg-surface-container-low transition-colors`}
+                                            >
                                                 <td className="px-4 py-3 whitespace-nowrap">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className={`w-1.5 h-6 ${days <= 30 ? 'bg-red-500' : days <= 90 ? 'bg-yellow-500' : 'bg-green-500'}`}></span>
+                                                    <div className="flex items-center gap-gap-sm">
+                                                        <span className={`w-1.5 h-6 ${expired ? 'bg-status-critical' : days <= 30 ? 'bg-status-critical' : days <= 90 ? 'bg-status-warning' : 'bg-status-success'}`}></span>
                                                         <div>
-                                                            <span className="text-sm font-semibold text-gray-900">#{batch.batch_number}</span>
-                                                            <span className="block text-xs text-gray-500">
-                                                                {index === 0 ? 'PRIORITY DISPENSE' : `${index + 1}. NEXT IN QUEUE`}
+                                                            <span className="text-sm font-bold text-text-primary font-mono">#{batch.batch_number}</span>
+                                                            <span className="block text-xs text-text-muted uppercase tracking-wider">
+                                                                {isPriority
+                                                                    ? 'Priority dispense'
+                                                                    : expired
+                                                                        ? 'Expired — write off'
+                                                                        : depleted
+                                                                            ? 'Depleted'
+                                                                            : `${index + 1}. Next in queue`}
                                                             </span>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm font-mono text-gray-900">{batch.batch_number}</td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-text-secondary">
                                                     {batch.supplier?.name || '—'}
                                                 </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-bold">{batch.quantity}</td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-right">${batch.cost_price}</td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-green-600 font-semibold">+{margin}%</td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-bold text-text-primary">{batch.quantity}</td>
+                                                {canViewCost && <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-text-secondary">${batch.cost_price}</td>}
+                                                {canViewCost && <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-status-success font-bold">+{margin}%</td>}
                                                 <td className="px-4 py-3 whitespace-nowrap text-sm">
                                                     <div>
-                                                        <span className={`font-medium ${days <= 30 ? 'text-red-600' : days <= 90 ? 'text-yellow-600' : 'text-gray-900'}`}>
+                                                        <span className={`font-bold ${expired || days <= 30 ? 'text-status-critical' : days <= 90 ? 'text-status-warning' : 'text-text-primary'}`}>
                                                             {new Date(batch.expiry_date).toLocaleDateString()}
                                                         </span>
-                                                        <span className={`block text-xs font-semibold ${days <= 30 ? 'text-red-500' : days <= 90 ? 'text-yellow-500' : 'text-green-500'}`}>
-                                                            {days <= 0 ? 'EXPIRED' : `${days} DAYS`}
+                                                        <span className={`block text-xs font-bold uppercase tracking-wider ${expired || days <= 30 ? 'text-status-critical' : days <= 90 ? 'text-status-warning' : 'text-status-success'}`}>
+                                                            {expired ? 'Expired' : `${days} days`}
                                                         </span>
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3 whitespace-nowrap text-center">
-                                                    {days <= 0 && <span className="px-2 py-1 text-xs font-bold rounded bg-red-100 text-red-800">EXPIRED</span>}
-                                                    {days > 0 && days <= 30 && <span className="px-2 py-1 text-xs font-bold rounded bg-yellow-100 text-yellow-800">CRITICAL</span>}
-                                                    {days > 30 && days <= 90 && <span className="px-2 py-1 text-xs font-bold rounded bg-blue-100 text-blue-800">MONITOR</span>}
-                                                    {days > 90 && <span className="px-2 py-1 text-xs font-bold rounded bg-green-100 text-green-800">STABLE</span>}
+                                                    {expired && <span className="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-status-critical-bg text-status-critical border border-status-critical">Expired</span>}
+                                                    {!expired && days <= 30 && <span className="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-status-warning-bg text-status-warning border border-status-warning">Critical</span>}
+                                                    {!expired && days > 30 && days <= 90 && <span className="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-status-info-bg text-status-info border border-status-info">Monitor</span>}
+                                                    {!expired && days > 90 && <span className="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-status-success-bg text-status-success border border-status-success">Stable</span>}
                                                 </td>
                                                 <td className="px-4 py-3 whitespace-nowrap text-right">
-                                                    <Button variant="outline" size="sm" onClick={() => openAdjustForm(batch)}>Report Issue</Button>
+                                                    {/* Nothing left to write off in an empty batch. */}
+                                                    <Button variant="outline" size="sm" disabled={depleted} onClick={() => openAdjustForm(batch)}>
+                                                        Report Issue
+                                                    </Button>
                                                 </td>
                                             </tr>
                                         );
                                     })}
                                     {product.stock_batches.length === 0 && (
                                         <tr>
-                                            <td colSpan={8} className="px-4 py-8 text-center text-gray-400">No batches received yet.</td>
+                                            <td colSpan={columnCount} className="px-4 py-8 text-center text-text-muted">
+                                                No batches received yet.
+                                            </td>
                                         </tr>
                                     )}
                                 </tbody>
@@ -262,33 +322,44 @@ export default function Show({ auth, product, suppliers }: Props) {
 
             {/* Adjustment Modal */}
             {adjustingBatch && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">Report Issue (Batch #{adjustingBatch.batch_number})</h3>
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+                    <div className="bg-surface-raised border border-border-strong shadow-xl max-w-md w-full p-gap-lg">
+                        <h3 className="font-headline-sm text-headline-sm text-text-primary uppercase tracking-wider mb-gap-md">
+                            Report Issue (Batch #{adjustingBatch.batch_number})
+                        </h3>
                         <form onSubmit={submitAdjustment}>
-                            <div className="space-y-4">
+                            <div className="space-y-gap-md">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Quantity to Deduct *</label>
-                                    <input type="number" max={adjustingBatch.quantity} min="1" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value={adjustForm.data.quantity_change ? Math.abs(Number(adjustForm.data.quantity_change)) : ''} onChange={e => adjustForm.setData('quantity_change', `-${e.target.value}`)} required />
-                                    <p className="text-xs text-gray-500 mt-1">Currently {adjustingBatch.quantity} in stock.</p>
-                                    {adjustForm.errors.quantity_change && <p className="text-red-500 text-xs mt-1">{adjustForm.errors.quantity_change}</p>}
+                                    <label className={LABEL_CLASS}>Quantity to Deduct *</label>
+                                    <input
+                                        type="number"
+                                        max={adjustingBatch.quantity}
+                                        min="1"
+                                        className={INPUT_CLASS}
+                                        value={adjustForm.data.quantity_change ? Math.abs(Number(adjustForm.data.quantity_change)) : ''}
+                                        onChange={e => adjustForm.setData('quantity_change', e.target.value ? `-${e.target.value}` : '')}
+                                        required
+                                    />
+                                    <p className="text-xs text-text-muted mt-1">Currently {adjustingBatch.quantity} in stock.</p>
+                                    {adjustForm.errors.quantity_change && <p className={ERROR_CLASS}>{adjustForm.errors.quantity_change}</p>}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Reason *</label>
-                                    <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value={adjustForm.data.reason} onChange={e => adjustForm.setData('reason', e.target.value)} required>
+                                    <label className={LABEL_CLASS}>Reason *</label>
+                                    <select className={INPUT_CLASS} value={adjustForm.data.reason} onChange={e => adjustForm.setData('reason', e.target.value)} required>
                                         <option value="damaged">Damaged Product</option>
                                         <option value="expired">Expired Product</option>
                                         <option value="missing">Missing / Lost</option>
                                         <option value="correction">Inventory Audit Correction</option>
                                     </select>
-                                    {adjustForm.errors.reason && <p className="text-red-500 text-xs mt-1">{adjustForm.errors.reason}</p>}
+                                    {adjustForm.errors.reason && <p className={ERROR_CLASS}>{adjustForm.errors.reason}</p>}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Notes (Optional)</label>
-                                    <textarea className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" rows={3} value={adjustForm.data.notes} onChange={e => adjustForm.setData('notes', e.target.value)}></textarea>
+                                    <label className={LABEL_CLASS}>Notes (Optional)</label>
+                                    <textarea className={INPUT_CLASS} rows={3} value={adjustForm.data.notes} onChange={e => adjustForm.setData('notes', e.target.value)}></textarea>
+                                    {adjustForm.errors.notes && <p className={ERROR_CLASS}>{adjustForm.errors.notes}</p>}
                                 </div>
                             </div>
-                            <div className="mt-6 flex justify-end gap-3">
+                            <div className="mt-gap-lg flex justify-end gap-gap-sm">
                                 <Button type="button" variant="outline" onClick={() => setAdjustingBatch(null)}>Cancel</Button>
                                 <Button type="submit" variant="destructive" disabled={adjustForm.processing}>Submit Report</Button>
                             </div>

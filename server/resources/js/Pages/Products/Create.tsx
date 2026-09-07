@@ -1,7 +1,7 @@
 import React from 'react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
+import AdminLayout from '@/Layouts/AdminLayout';
+import { Head, useForm } from '@inertiajs/react';
+import { Button } from '@/Components/ui/button';
 
 interface Category {
     id: number;
@@ -24,6 +24,13 @@ interface Props {
     };
 }
 
+const INPUT_CLASS =
+    'mt-1 block w-full bg-surface-base border border-border-strong text-text-primary ' +
+    'placeholder:text-text-muted focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm';
+const LABEL_CLASS =
+    'block text-xs font-bold text-text-secondary uppercase tracking-wider';
+const ERROR_CLASS = 'text-status-critical text-xs mt-1 font-bold';
+
 export default function Create({ auth, categories, product }: Props) {
     const isEditing = !!product;
 
@@ -33,7 +40,9 @@ export default function Create({ auth, categories, product }: Props) {
         barcode: product?.barcode ?? '',
         unit: product?.unit ?? 'tablet',
         selling_price: product?.selling_price ?? '',
-        reorder_level: product?.reorder_level ?? 10,
+        // Held as a string so that clearing the field yields '' rather than the
+        // NaN that parseInt('') produced, which was then submitted as-is.
+        reorder_level: String(product?.reorder_level ?? 10),
         requires_prescription: product?.requires_prescription ?? false,
         is_controlled: product?.is_controlled ?? false,
     });
@@ -48,39 +57,41 @@ export default function Create({ auth, categories, product }: Props) {
     };
 
     return (
-        <AuthenticatedLayout
-            header={<h2 className="text-xl font-semibold leading-tight text-gray-800">{isEditing ? 'Edit' : 'Add'} Product</h2>}
-        >
+        <AdminLayout>
             <Head title={isEditing ? 'Edit Product' : 'Add Product'} />
 
-            <div className="py-12">
+            <div className="py-6">
                 <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
-                    <div className="bg-white shadow-sm sm:rounded-lg p-6">
-                        <form onSubmit={submit} className="space-y-6">
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <h2 className="font-headline-lg text-headline-lg text-text-primary mb-gap-lg">
+                        {isEditing ? 'Edit' : 'Add'} Product
+                    </h2>
+                    <div className="bg-surface-raised border border-border-subtle p-gap-lg shadow">
+                        <form onSubmit={submit} className="space-y-gap-lg">
+                            <div className="grid grid-cols-1 gap-gap-md sm:grid-cols-2">
                                 <div className="sm:col-span-2">
-                                    <label className="block text-sm font-medium text-gray-700">Product Name *</label>
-                                    <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value={data.name} onChange={e => setData('name', e.target.value)} required />
-                                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                                    <label className={LABEL_CLASS}>Product Name *</label>
+                                    <input type="text" className={INPUT_CLASS} value={data.name} onChange={e => setData('name', e.target.value)} required />
+                                    {errors.name && <p className={ERROR_CLASS}>{errors.name}</p>}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Category</label>
-                                    <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value={data.category_id} onChange={e => setData('category_id', e.target.value)}>
+                                    <label className={LABEL_CLASS}>Category</label>
+                                    <select className={INPUT_CLASS} value={data.category_id} onChange={e => setData('category_id', e.target.value)}>
                                         <option value="">None</option>
                                         {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                     </select>
+                                    {errors.category_id && <p className={ERROR_CLASS}>{errors.category_id}</p>}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Barcode</label>
-                                    <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm font-mono" value={data.barcode} onChange={e => setData('barcode', e.target.value)} placeholder="Scan or enter barcode" />
-                                    {errors.barcode && <p className="text-red-500 text-xs mt-1">{errors.barcode}</p>}
+                                    <label className={LABEL_CLASS}>Barcode</label>
+                                    <input type="text" className={`${INPUT_CLASS} font-mono`} value={data.barcode} onChange={e => setData('barcode', e.target.value)} placeholder="Scan or enter barcode" />
+                                    {errors.barcode && <p className={ERROR_CLASS}>{errors.barcode}</p>}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Unit</label>
-                                    <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value={data.unit} onChange={e => setData('unit', e.target.value)}>
+                                    <label className={LABEL_CLASS}>Unit</label>
+                                    <select className={INPUT_CLASS} value={data.unit} onChange={e => setData('unit', e.target.value)}>
                                         <option value="tablet">Tablet</option>
                                         <option value="bottle">Bottle</option>
                                         <option value="box">Box</option>
@@ -89,32 +100,34 @@ export default function Create({ auth, categories, product }: Props) {
                                         <option value="vial">Vial</option>
                                         <option value="ampoule">Ampoule</option>
                                     </select>
+                                    {errors.unit && <p className={ERROR_CLASS}>{errors.unit}</p>}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Selling Price *</label>
-                                    <input type="number" step="0.01" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value={data.selling_price} onChange={e => setData('selling_price', e.target.value)} required />
-                                    {errors.selling_price && <p className="text-red-500 text-xs mt-1">{errors.selling_price}</p>}
+                                    <label className={LABEL_CLASS}>Selling Price *</label>
+                                    <input type="number" step="0.01" min="0" className={INPUT_CLASS} value={data.selling_price} onChange={e => setData('selling_price', e.target.value)} required />
+                                    {errors.selling_price && <p className={ERROR_CLASS}>{errors.selling_price}</p>}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Reorder Level</label>
-                                    <input type="number" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value={data.reorder_level} onChange={e => setData('reorder_level', parseInt(e.target.value))} />
+                                    <label className={LABEL_CLASS}>Reorder Level</label>
+                                    <input type="number" min="0" className={INPUT_CLASS} value={data.reorder_level} onChange={e => setData('reorder_level', e.target.value)} />
+                                    {errors.reorder_level && <p className={ERROR_CLASS}>{errors.reorder_level}</p>}
                                 </div>
 
-                                <div className="sm:col-span-2 flex gap-6">
-                                    <label className="flex items-center gap-2">
-                                        <input type="checkbox" className="rounded border-gray-300 text-indigo-600 shadow-sm" checked={data.requires_prescription} onChange={e => setData('requires_prescription', e.target.checked)} />
-                                        <span className="text-sm text-gray-700">Requires Prescription</span>
+                                <div className="sm:col-span-2 flex gap-gap-lg border-t border-border-strong pt-gap-md">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" className="bg-surface-base border-border-strong text-primary focus:ring-primary" checked={data.requires_prescription} onChange={e => setData('requires_prescription', e.target.checked)} />
+                                        <span className="text-xs font-bold text-text-primary uppercase tracking-wider">Requires Prescription</span>
                                     </label>
-                                    <label className="flex items-center gap-2">
-                                        <input type="checkbox" className="rounded border-gray-300 text-red-600 shadow-sm" checked={data.is_controlled} onChange={e => setData('is_controlled', e.target.checked)} />
-                                        <span className="text-sm text-gray-700">Controlled Substance</span>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" className="bg-surface-base border-border-strong text-status-critical focus:ring-status-critical" checked={data.is_controlled} onChange={e => setData('is_controlled', e.target.checked)} />
+                                        <span className="text-xs font-bold text-text-primary uppercase tracking-wider">Controlled Substance</span>
                                     </label>
                                 </div>
                             </div>
 
-                            <div className="flex justify-end gap-2">
+                            <div className="flex justify-end gap-gap-sm">
                                 <Button type="button" variant="outline" onClick={() => window.history.back()}>Cancel</Button>
                                 <Button type="submit" disabled={processing}>{isEditing ? 'Update' : 'Create'} Product</Button>
                             </div>
@@ -122,6 +135,6 @@ export default function Create({ auth, categories, product }: Props) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

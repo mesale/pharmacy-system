@@ -4,6 +4,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 export default function AdminLayout({ children }: PropsWithChildren) {
     const user = usePage().props.auth.user;
     const { url } = usePage();
+    const isAdmin = user.roles && user.roles.includes('admin');
 
     return (
         <>
@@ -55,7 +56,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                         <div className="px-gutter-mobile py-gap-sm">
                             <span className="font-label-sm text-label-sm text-text-muted uppercase tracking-wider block mb-gap-xs">Core Modules</span>
                             <nav className="flex flex-col gap-1">
-                                <Link href={route('pos.index')} className="flex items-center gap-gap-sm px-gap-sm py-2 text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors">
+                                <Link href={route('pos.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/pos') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
                                     <span className="material-symbols-outlined text-headline-sm">barcode_scanner</span>
                                     <span className="font-headline-sm text-headline-sm">Dispense &amp; POS</span>
                                 </Link>
@@ -71,27 +72,38 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                                     <span className="material-symbols-outlined text-headline-sm">hub</span>
                                     <span className="font-headline-sm text-headline-sm">Suppliers</span>
                                 </Link>
-                                <Link href={route('purchasing.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/purchasing') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-                                    <span className="material-symbols-outlined text-headline-sm">shopping_cart</span>
-                                    <span className="font-headline-sm text-headline-sm">Purchasing</span>
-                                </Link>
-                                <Link href={route('users.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/users') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-                                    <span className="material-symbols-outlined text-headline-sm">group</span>
-                                    <span className="font-headline-sm text-headline-sm">Staff & Users</span>
-                                </Link>
-                                <Link href={route('adjustments.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/adjustments') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-                                    <span className="material-symbols-outlined text-headline-sm">history</span>
-                                    <span className="font-headline-sm text-headline-sm">Audit Log</span>
-                                </Link>
-                                <Link href={route('reports.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/reports') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-                                    <span className="material-symbols-outlined text-headline-sm">query_stats</span>
-                                    <span className="font-headline-sm text-headline-sm">Financial Reports</span>
-                                </Link>
-                                <Link href={route('dashboard')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url === '/dashboard' ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-                                    <span className="material-symbols-outlined text-headline-sm">monitoring</span>
-                                    <span className="font-headline-sm text-headline-sm">Executive Admin</span>
-                                </Link>
+                                
+                                {isAdmin && (
+                                    <>
+                                        <Link href={route('purchasing.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/purchasing') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
+                                            <span className="material-symbols-outlined text-headline-sm">shopping_cart</span>
+                                            <span className="font-headline-sm text-headline-sm">Purchasing</span>
+                                        </Link>
+                                        <Link href={route('users.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/users') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
+                                            <span className="material-symbols-outlined text-headline-sm">group</span>
+                                            <span className="font-headline-sm text-headline-sm">Staff & Users</span>
+                                        </Link>
+                                        <Link href={route('adjustments.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/adjustments') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
+                                            <span className="material-symbols-outlined text-headline-sm">history</span>
+                                            <span className="font-headline-sm text-headline-sm">Audit Log</span>
+                                        </Link>
+                                        <Link href={route('reports.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/reports') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
+                                            <span className="material-symbols-outlined text-headline-sm">query_stats</span>
+                                            <span className="font-headline-sm text-headline-sm">Financial Reports</span>
+                                        </Link>
+                                        <Link href={route('dashboard')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url === '/dashboard' ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
+                                            <span className="material-symbols-outlined text-headline-sm">monitoring</span>
+                                            <span className="font-headline-sm text-headline-sm">Executive Admin</span>
+                                        </Link>
+                                    </>
+                                )}
                             </nav>
+                        </div>
+                        <div className="px-gutter-mobile pt-4">
+                            <Link href={route('reconciliation.create')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors rounded ${url.startsWith('/reconciliation') ? 'bg-status-critical-bg text-status-critical font-bold' : 'bg-surface-overlay text-on-surface hover:bg-surface-container-high border border-border-subtle'}`}>
+                                <span className="material-symbols-outlined text-headline-sm">point_of_sale</span>
+                                <span className="font-headline-sm text-headline-sm">Close Shift</span>
+                            </Link>
                         </div>
                     </div>
                     <div className="p-gutter-mobile border-t border-border-subtle bg-surface-base">
@@ -126,7 +138,9 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                             <nav className="hidden xl:flex items-center gap-gap-lg">
                                 <Link href={route('pos.index')} className="font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface transition-colors uppercase">Worker POS / Dispense</Link>
                                 <Link href={route('products.index')} className={`font-label-lg text-label-lg transition-colors uppercase ${url.startsWith('/products') ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-on-surface-variant hover:text-on-surface'}`}>Inventory &amp; FEFO Batches</Link>
-                                <Link href={route('dashboard')} className={`font-label-lg text-label-lg transition-colors uppercase ${url === '/dashboard' ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-on-surface-variant hover:text-on-surface'}`}>Admin Executive Dashboard</Link>
+                                {isAdmin && (
+                                    <Link href={route('dashboard')} className={`font-label-lg text-label-lg transition-colors uppercase ${url === '/dashboard' ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-on-surface-variant hover:text-on-surface'}`}>Admin Executive Dashboard</Link>
+                                )}
                             </nav>
                         </div>
                         <div className="flex items-center gap-gap-md">
@@ -134,8 +148,9 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                                 <div className="flex flex-col text-right">
                                     <span className="font-headline-sm text-headline-sm text-text-primary">{user.name}</span>
                                     <div className="flex items-center justify-end gap-1">
-                                        <span className="font-label-sm text-label-sm text-text-muted">PharmD</span>
-                                        <span className="font-label-sm text-label-sm bg-surface-overlay text-primary border border-primary px-1 font-bold">ADMIN</span>
+                                        <span className={`font-label-sm text-label-sm bg-surface-overlay px-1 font-bold border ${isAdmin ? 'text-primary border-primary' : 'text-status-warning border-status-warning'}`}>
+                                            {isAdmin ? 'ADMIN' : 'WORKER'}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

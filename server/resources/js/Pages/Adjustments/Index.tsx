@@ -26,62 +26,68 @@ export default function Index({ auth, adjustments }: Props) {
         <AdminLayout>
             <Head title="Audit Log: Adjustments" />
 
-            <div className="py-12">
+            <div className="py-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg p-6">
+                    <div className="overflow-hidden bg-surface-raised border border-border-subtle p-gap-md shadow">
                         
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-medium text-gray-900">Stock Adjustment Audit Log</h3>
+                        <div className="flex justify-between items-center mb-gap-md">
+                            <div className="flex items-center gap-gap-sm text-text-primary">
+                                <span className="material-symbols-outlined">history</span>
+                                <h3 className="text-lg font-bold uppercase tracking-wider">Stock Adjustment Audit Log</h3>
+                            </div>
                         </div>
 
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
+                        <div className="overflow-x-auto border border-border-subtle bg-surface-base">
+                            <table className="min-w-full divide-y divide-border-subtle">
+                                <thead className="bg-surface-container">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timestamp</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product & Batch</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reason</th>
-                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Qty Change</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Notes</th>
+                                        <th className="px-gap-md py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Timestamp</th>
+                                        <th className="px-gap-md py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">User</th>
+                                        <th className="px-gap-md py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Product & Batch</th>
+                                        <th className="px-gap-md py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Reason</th>
+                                        <th className="px-gap-md py-3 text-right text-xs font-bold text-text-secondary uppercase tracking-wider">Qty Change</th>
+                                        <th className="px-gap-md py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Notes</th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
+                                <tbody className="divide-y divide-border-subtle bg-surface-base">
                                     {adjustments.data.map((adj) => (
-                                        <tr key={adj.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <tr key={adj.id} className="hover:bg-surface-container-low transition-colors">
+                                            <td className="px-gap-md py-4 whitespace-nowrap text-sm text-text-muted font-mono">
                                                 {new Date(adj.created_at).toLocaleString()}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <td className="px-gap-md py-4 whitespace-nowrap text-sm font-bold text-text-primary">
                                                 {adj.user.name}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-medium text-gray-900">{adj.product.name}</div>
-                                                <div className="text-xs text-gray-500">Batch: {adj.batch.batch_number}</div>
+                                            <td className="px-gap-md py-4 whitespace-nowrap">
+                                                <div className="text-sm font-bold text-text-primary">{adj.product.name}</div>
+                                                <div className="text-xs text-text-secondary font-mono">Batch: {adj.batch.batch_number}</div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 py-1 text-xs font-semibold rounded-full uppercase ${
-                                                    adj.reason === 'damaged' ? 'bg-red-100 text-red-800' :
-                                                    adj.reason === 'expired' ? 'bg-orange-100 text-orange-800' :
-                                                    adj.reason === 'missing' ? 'bg-yellow-100 text-yellow-800' :
-                                                    'bg-blue-100 text-blue-800'
+                                            <td className="px-gap-md py-4 whitespace-nowrap">
+                                                <span className={`px-2 py-1 text-xs font-bold rounded-sm border uppercase tracking-wider ${
+                                                    adj.reason === 'damaged' ? 'bg-status-critical-bg text-status-critical border-status-critical' :
+                                                    adj.reason === 'expired' ? 'bg-status-warning-bg text-status-warning border-status-warning' :
+                                                    adj.reason === 'missing' ? 'bg-status-warning-bg text-status-warning border-status-warning' :
+                                                    'bg-status-info-bg text-status-info border-status-info'
                                                 }`}>
                                                     {adj.reason}
                                                 </span>
                                             </td>
-                                            <td className={`px-6 py-4 whitespace-nowrap text-right text-sm font-bold ${
-                                                adj.quantity_change < 0 ? 'text-red-600' : 'text-green-600'
+                                            <td className={`px-gap-md py-4 whitespace-nowrap text-right text-sm font-bold ${
+                                                adj.quantity_change < 0 ? 'text-status-critical' : 'text-status-success'
                                             }`}>
                                                 {adj.quantity_change > 0 ? '+' : ''}{adj.quantity_change}
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                                            <td className="px-gap-md py-4 text-sm text-text-muted max-w-xs truncate">
                                                 {adj.notes || '—'}
                                             </td>
                                         </tr>
                                     ))}
                                     {adjustments.data.length === 0 && (
                                         <tr>
-                                            <td colSpan={6} className="px-6 py-8 text-center text-gray-400">No adjustments logged yet.</td>
+                                            <td colSpan={6} className="px-gap-md py-8 text-center text-text-muted flex-col items-center flex">
+                                                <span className="material-symbols-outlined text-4xl mb-2">history</span>
+                                                No adjustments logged yet.
+                                            </td>
                                         </tr>
                                     )}
                                 </tbody>

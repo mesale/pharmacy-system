@@ -3,6 +3,11 @@ import forms from '@tailwindcss/forms';
 
 /** @type {import('tailwindcss').Config} */
 export default {
+    // AdminLayout puts a `dark` class on its root element. Without this the
+    // default "media" strategy is used, so every dark: variant keyed off the
+    // OS setting instead of that class.
+    darkMode: 'class',
+
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
@@ -35,6 +40,15 @@ export default {
                 'surface-container-high': '#262a2f',
                 'surface-container-highest': '#31353a',
                 'primary': '#4fdbc8',
+                // Used as `text-on-primary` on filled primary buttons; the
+                // palette never defined it, so that text stayed unstyled.
+                'on-primary': '#00201C',
+                // `hover:bg-primary-hover` is on the main action button of seven
+                // pages (products, users, suppliers, categories, purchasing,
+                // reports, login) but was never defined, so none of those
+                // buttons had a hover state at all. Brightened rather than
+                // darkened: these sit on a near-black surface.
+                'primary-hover': '#6fe3d3',
                 'tertiary': '#3cddc7',
                 'secondary-container': '#007068',
                 'border-subtle': '#1E2730',
@@ -52,10 +66,17 @@ export default {
                 'status-critical-bg': '#2A0A12',
                 'status-warning': '#F59E0B',
                 'status-warning-bg': '#2B1A04',
+                // Used for the Rx / informational badges on the product,
+                // report and adjustment tables; the palette never defined it,
+                // so those badges rendered with no colour at all.
+                'status-info': '#3B82F6',
+                'status-info-bg': '#0A192E',
                 'badge-controlled-text': '#FFE4E6',
                 'badge-controlled': '#BE123C'
             },
             spacing: {
+                // gap-2xs is referenced by AdminLayout but was never defined.
+                'gap-2xs': '0.125rem',
                 'gap-xs': '0.25rem',
                 'gap-sm': '0.5rem',
                 'gap-md': '0.75rem',

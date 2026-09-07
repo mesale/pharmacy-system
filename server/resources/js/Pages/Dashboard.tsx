@@ -8,8 +8,10 @@ interface Props {
     netProfitToday: number;
     transactionCountToday: number;
     expiringBatchesCount: number;
+    expiredBatchesCount: number;
+    lowStockCount: number;
     criticalAlerts: Array<{
-        type: 'low_stock' | 'expiring';
+        type: 'low_stock' | 'expiring' | 'expired';
         product: string;
         barcode?: string;
         batch_number?: string;
@@ -27,6 +29,8 @@ export default function Dashboard({
     netProfitToday,
     transactionCountToday,
     expiringBatchesCount,
+    expiredBatchesCount,
+    lowStockCount,
     criticalAlerts
 }: Props) {
     const formatCurrency = (val: number) => {
@@ -111,6 +115,34 @@ export default function Dashboard({
                             {expiringBatchesCount > 0 ? <span className="text-status-warning">REQUIRED</span> : <span>NONE</span>}
                         </div>
                     </div>
+                    <div className={`bg-surface-raised border p-3 flex flex-col justify-between relative overflow-hidden group transition-colors ${expiredBatchesCount > 0 ? 'border-status-critical hover:border-status-critical' : 'border-border-subtle hover:border-border-strong'}`}>
+                        <div className="flex items-center justify-between">
+                            <span className={`font-label-sm text-label-sm uppercase font-semibold ${expiredBatchesCount > 0 ? 'text-status-critical' : 'text-text-muted'}`}>Expired Stock</span>
+                            {expiredBatchesCount > 0 && <span className="bg-status-critical-bg text-status-critical border border-status-critical font-label-sm text-label-sm px-1">WRITE OFF</span>}
+                        </div>
+                        <div className="mt-2 flex items-baseline justify-between">
+                            <span className={`font-data-tabular-lg text-data-tabular-lg font-bold tracking-tight ${expiredBatchesCount > 0 ? 'text-status-critical' : 'text-text-primary'}`}>{expiredBatchesCount}</span>
+                            <span className="font-label-sm text-label-sm text-text-secondary">BATCHES UNSELLABLE</span>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between text-[10px] text-text-muted">
+                            <span>ACTION</span>
+                            {expiredBatchesCount > 0 ? <span className="text-status-critical">REQUIRED</span> : <span>NONE</span>}
+                        </div>
+                    </div>
+                    <div className={`bg-surface-raised border p-3 flex flex-col justify-between relative overflow-hidden group transition-colors ${lowStockCount > 0 ? 'border-status-warning hover:border-status-warning' : 'border-border-subtle hover:border-border-strong'}`}>
+                        <div className="flex items-center justify-between">
+                            <span className={`font-label-sm text-label-sm uppercase font-semibold ${lowStockCount > 0 ? 'text-status-warning' : 'text-text-muted'}`}>Reorder Required</span>
+                            {lowStockCount > 0 && <span className="bg-status-warning-bg text-status-warning border border-status-warning font-label-sm text-label-sm px-1">AT PAR FLOOR</span>}
+                        </div>
+                        <div className="mt-2 flex items-baseline justify-between">
+                            <span className={`font-data-tabular-lg text-data-tabular-lg font-bold tracking-tight ${lowStockCount > 0 ? 'text-status-warning' : 'text-text-primary'}`}>{lowStockCount}</span>
+                            <span className="font-label-sm text-label-sm text-text-secondary">PRODUCTS LOW</span>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between text-[10px] text-text-muted">
+                            <span>ACTION</span>
+                            {lowStockCount > 0 ? <span className="text-status-warning">REORDER</span> : <span>NONE</span>}
+                        </div>
+                    </div>
                 </section>
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-gap-lg">
                     <div className="lg:col-span-8 flex flex-col gap-gap-lg">
@@ -135,33 +167,36 @@ export default function Dashboard({
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-border-subtle font-body-sm text-body-sm">
-                                        {criticalAlerts.map((alert, idx) => (
-                                            <tr key={idx} className={alert.type === 'low_stock' ? 'bg-status-critical-bg/20 hover:bg-surface-overlay transition-colors' : 'hover:bg-surface-overlay transition-colors'}>
+                                        {criticalAlerts.map((alert, idx) => {
+                                            const isCritical = alert.type === 'low_stock' || alert.type === 'expired';
+                                            return (
+                                            <tr key={idx} className={isCritical ? 'bg-status-critical-bg/20 hover:bg-surface-overlay transition-colors' : 'hover:bg-surface-overlay transition-colors'}>
                                                 <td className="py-2 px-2">
                                                     <div className="flex items-center gap-2">
-                                                        <span className={`w-1.5 h-5 ${alert.type === 'low_stock' ? 'bg-status-critical' : 'bg-status-warning'}`}></span>
+                                                        <span className={`w-1.5 h-5 ${isCritical ? 'bg-status-critical' : 'bg-status-warning'}`}></span>
                                                         <div className="flex flex-col">
                                                             <span className="font-headline-sm text-headline-sm text-text-primary">{alert.product}</span>
                                                             <span className="font-label-sm text-label-sm text-text-muted">
-                                                                {alert.type === 'low_stock' ? `Barcode: ${alert.barcode}` : `Batch: ${alert.batch_number}`}
+                                                                {alert.type === 'low_stock' ? `Barcode: ${alert.barcode ?? '—'}` : `Batch: ${alert.batch_number}`}
                                                             </span>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className={`py-2 px-2 font-mono font-bold ${alert.type === 'low_stock' ? 'text-status-critical' : 'text-status-warning'}`}>
-                                                    {alert.type === 'low_stock' ? `${alert.current_stock} Units` : `${alert.quantity} Units Expiring`}
+                                                <td className={`py-2 px-2 font-mono font-bold ${isCritical ? 'text-status-critical' : 'text-status-warning'}`}>
+                                                    {alert.type === 'low_stock' ? `${alert.current_stock} Units` : `${alert.quantity} Units`}
                                                     <span className="text-[9px] block text-text-muted">{alert.message}</span>
                                                 </td>
                                                 <td className="py-2 px-2 font-mono text-text-primary">
                                                     {alert.type === 'low_stock' ? `${alert.threshold} Units` : `${alert.expiry_date}`}
                                                 </td>
                                                 <td className="py-2 px-2 text-right">
-                                                    <Link href={route('products.index')} className={`px-2 py-1 font-label-sm text-label-sm font-bold uppercase transition-all ${alert.type === 'low_stock' ? 'bg-status-critical text-text-primary hover:brightness-110 active:scale-95' : 'bg-surface-base border border-border-strong text-text-primary hover:border-primary'}`}>
+                                                    <Link href={route('products.index')} className={`px-2 py-1 font-label-sm text-label-sm font-bold uppercase transition-all ${isCritical ? 'bg-status-critical text-text-primary hover:brightness-110 active:scale-95' : 'bg-surface-base border border-border-strong text-text-primary hover:border-primary'}`}>
                                                         VIEW ITEM
                                                     </Link>
                                                 </td>
                                             </tr>
-                                        ))}
+                                            );
+                                        })}
                                         {criticalAlerts.length === 0 && (
                                             <tr>
                                                 <td colSpan={4} className="py-8 text-center font-body-sm text-body-sm text-text-muted">Systems nominal. No active alerts.</td>
@@ -191,7 +226,7 @@ export default function Dashboard({
                                 </Link>
                                 <Link href={route('suppliers.index')} className="flex items-center justify-between p-2.5 bg-surface-base border border-border-subtle hover:border-primary text-text-primary group transition-colors">
                                     <div className="flex items-center gap-2.5">
-                                        <span className="material-symbols-outlined text-secondary text-headline-sm">hub</span>
+                                        <span className="material-symbols-outlined text-text-secondary text-headline-sm">hub</span>
                                         <div className="flex flex-col text-left">
                                             <span className="font-headline-sm text-headline-sm text-text-primary">Supplier Management</span>
                                             <span className="font-label-sm text-label-sm text-text-muted">EDI 850 links and pricing agreements</span>

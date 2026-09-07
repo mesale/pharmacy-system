@@ -87,7 +87,7 @@ class StockAdjustmentTest extends TestCase
             'reason' => 'missing',
         ]);
 
-        $response->assertSessionHasErrors(['error']);
+        $response->assertSessionHasErrors('quantity_change');
         
         $batch->refresh();
         $this->assertEquals(5, $batch->quantity);

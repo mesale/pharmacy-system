@@ -33,10 +33,35 @@ class Product extends Model
     }
 
     /**
-     * Total stock across all batches.
+     * Batches that may actually be dispensed: in stock and not past expiry.
+     * Expired stock stays on the books (it still has to be written off) but is
+     * never counted as sellable.
+     */
+    public function sellableBatches(): HasMany
+    {
+        return $this->stockBatches()
+            ->where('quantity', '>', 0)
+            ->whereDate('expiry_date', '>=', now()->toDateString());
+    }
+
+    public function saleItems(): HasMany
+    {
+        return $this->hasMany(SaleItem::class);
+    }
+
+    /**
+     * Sellable stock across all batches.
+     *
+     * Prefers an aggregate already loaded by the query (e.g.
+     * `withSum('sellableBatches as total_stock', 'quantity')`) so that eager
+     * aggregation isn't silently discarded and re-queried per model.
      */
     public function getTotalStockAttribute(): int
     {
-        return $this->stockBatches()->sum('quantity');
+        if (array_key_exists('total_stock', $this->attributes)) {
+            return (int) $this->attributes['total_stock'];
+        }
+
+        return (int) $this->sellableBatches()->sum('quantity');
     }
 }
