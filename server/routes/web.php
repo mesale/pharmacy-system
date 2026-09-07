@@ -30,6 +30,8 @@ Route::middleware('auth')->group(function () {
 
     // Admin-only write operations
     Route::middleware('role:admin')->group(function () {
+        Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+        
         Route::get('/adjustments', [\App\Http\Controllers\StockAdjustmentController::class, 'index'])->name('adjustments.index');
         
         Route::get('/users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
