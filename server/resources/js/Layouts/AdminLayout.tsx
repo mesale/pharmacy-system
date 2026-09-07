@@ -1,10 +1,11 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 import { Head, Link, usePage } from '@inertiajs/react';
 
 export default function AdminLayout({ children }: PropsWithChildren) {
     const user = usePage().props.auth.user;
     const { url } = usePage();
     const isAdmin = user.roles && user.roles.includes('admin');
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     return (
         <>
@@ -25,7 +26,11 @@ export default function AdminLayout({ children }: PropsWithChildren) {
             </Head>
 
             <div className="dark bg-surface-base font-body-md text-body-md text-on-surface antialiased min-h-screen flex">
-                <aside className="fixed left-0 top-0 h-full w-64 bg-surface-raised border-r border-border-subtle z-50 flex flex-col justify-between">
+                {isMobileMenuOpen && (
+                    <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
+                )}
+                
+                <aside className={`fixed left-0 top-0 h-full w-64 bg-surface-raised border-r border-border-subtle z-50 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                     <div className="flex flex-col">
                         <div className="h-16 px-gutter-mobile flex items-center justify-between border-b border-border-subtle bg-surface-base">
                             <div className="flex items-center gap-gap-sm">
@@ -114,16 +119,20 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                     </div>
                 </aside>
                 
-                <div className="flex-1 ml-64 flex flex-col min-h-screen">
-                    <header className="fixed top-0 left-64 right-0 h-16 bg-surface-base border-b border-border-subtle z-40 flex items-center justify-between px-gutter-mobile">
+                <div className="flex-1 lg:ml-64 flex flex-col min-h-screen transition-all duration-300">
+                    <header className="fixed top-0 left-0 lg:left-64 right-0 h-16 bg-surface-base border-b border-border-subtle z-40 flex items-center justify-between px-gutter-mobile transition-all duration-300">
                         <div className="flex items-center gap-gap-lg">
                             <div className="flex items-center gap-gap-sm">
+                                <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden text-text-primary p-1 flex items-center justify-center hover:bg-surface-raised rounded-md transition-colors">
+                                    <span className="material-symbols-outlined text-headline-sm">menu</span>
+                                </button>
                                 <div className="flex flex-col">
                                     <div className="flex items-center gap-gap-xs">
-                                        <span className="font-headline-sm text-headline-sm text-text-primary">ST. JUDE CLINICAL PHARMACY</span>
-                                        <span className="font-label-sm text-label-sm bg-surface-overlay text-text-muted border border-border-subtle px-1.5 py-0.5">DISPENSARY T-04</span>
+                                        <span className="font-headline-sm text-headline-sm text-text-primary hidden sm:block">ST. JUDE CLINICAL PHARMACY</span>
+                                        <span className="font-headline-sm text-headline-sm text-text-primary sm:hidden">ST. JUDE</span>
+                                        <span className="font-label-sm text-label-sm bg-surface-overlay text-text-muted border border-border-subtle px-1.5 py-0.5">T-04</span>
                                     </div>
-                                    <span className="font-label-sm text-label-sm text-text-muted hidden sm:block">Main Inpatient Dispensary Tower</span>
+                                    <span className="font-label-sm text-label-sm text-text-muted hidden md:block">Main Inpatient Dispensary Tower</span>
                                 </div>
                             </div>
                         </div>
