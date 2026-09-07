@@ -53,6 +53,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                                 <span className="font-label-sm text-label-sm bg-surface-container-high text-on-surface-variant px-1 py-0.5 border border-outline-variant">DISP-BAY</span>
                             </div>
                         </div>
+
                         <div className="px-gutter-mobile py-gap-sm">
                             <span className="font-label-sm text-label-sm text-text-muted uppercase tracking-wider block mb-gap-xs">Core Modules</span>
                             <nav className="flex flex-col gap-1">
@@ -107,41 +108,24 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                         </div>
                     </div>
                     <div className="p-gutter-mobile border-t border-border-subtle bg-surface-base">
-                        <div className="flex items-center justify-between font-label-sm text-label-sm text-text-muted mb-gap-xs">
-                            <span>HARDWARE SYNC</span>
-                            <span className="text-primary">OPTICAL READY</span>
-                        </div>
-                        <div className="flex items-center gap-gap-xs text-text-secondary font-label-sm text-label-sm">
-                            <span className="material-symbols-outlined text-status-success text-body-md">qr_code_scanner</span>
-                            <span>Honeywell 1950g On</span>
-                        </div>
-                        <div className="mt-4 pt-4 border-t border-border-subtle">
-                             <Link href={route('logout')} method="post" as="button" className="w-full text-left font-label-sm text-label-sm text-status-critical hover:text-red-400">
-                                LOGOUT {user.name.toUpperCase()}
-                            </Link>
-                        </div>
+                        <Link href={route('logout')} method="post" as="button" className="w-full text-left font-label-sm text-label-sm text-status-critical hover:text-red-400">
+                            LOGOUT {user.name.toUpperCase()}
+                        </Link>
                     </div>
                 </aside>
                 
                 <div className="flex-1 ml-64 flex flex-col min-h-screen">
-                    <header className="fixed top-0 left-64 right-0 h-16 bg-surface-raised border-b border-border-subtle z-40 flex items-center justify-between px-gutter-mobile">
+                    <header className="fixed top-0 left-64 right-0 h-16 bg-surface-base border-b border-border-subtle z-40 flex items-center justify-between px-gutter-mobile">
                         <div className="flex items-center gap-gap-lg">
                             <div className="flex items-center gap-gap-sm">
                                 <div className="flex flex-col">
                                     <div className="flex items-center gap-gap-xs">
                                         <span className="font-headline-sm text-headline-sm text-text-primary">ST. JUDE CLINICAL PHARMACY</span>
-                                        <span className="font-label-sm text-label-sm bg-surface-overlay text-primary border border-border-strong px-1.5 py-0.5">DISPENSARY T-04</span>
+                                        <span className="font-label-sm text-label-sm bg-surface-overlay text-text-muted border border-border-subtle px-1.5 py-0.5">DISPENSARY T-04</span>
                                     </div>
-                                    <span className="font-label-sm text-label-sm text-text-muted">Main Inpatient Dispensary Tower &middot; Station Lock #9420</span>
+                                    <span className="font-label-sm text-label-sm text-text-muted hidden sm:block">Main Inpatient Dispensary Tower</span>
                                 </div>
                             </div>
-                            <nav className="hidden xl:flex items-center gap-gap-lg">
-                                <Link href={route('pos.index')} className="font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface transition-colors uppercase">Worker POS / Dispense</Link>
-                                <Link href={route('products.index')} className={`font-label-lg text-label-lg transition-colors uppercase ${url.startsWith('/products') ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-on-surface-variant hover:text-on-surface'}`}>Inventory &amp; FEFO Batches</Link>
-                                {isAdmin && (
-                                    <Link href={route('dashboard')} className={`font-label-lg text-label-lg transition-colors uppercase ${url === '/dashboard' ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-on-surface-variant hover:text-on-surface'}`}>Admin Executive Dashboard</Link>
-                                )}
-                            </nav>
                         </div>
                         <div className="flex items-center gap-gap-md">
                             <div className="flex items-center gap-gap-sm pl-gap-xs">

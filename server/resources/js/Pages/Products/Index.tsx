@@ -70,7 +70,7 @@ export default function Index({ auth, products, categories }: Props) {
 
             <div className="py-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-surface-raised border border-border-subtle p-gap-md shadow">
+                    <div className="overflow-hidden bg-transparent">
 
                         <div className="flex flex-wrap justify-between items-center mb-gap-md gap-4">
                             <form onSubmit={handleSearch} className="flex items-center gap-gap-sm">
@@ -166,9 +166,9 @@ export default function Index({ auth, products, categories }: Props) {
                             </form>
                         )}
 
-                        <div className="overflow-x-auto border border-border-subtle bg-surface-base">
+                        <div className="overflow-x-auto border border-border-subtle bg-surface-base rounded-lg shadow-sm">
                             <table className="min-w-full divide-y divide-border-subtle">
-                                <thead className="bg-surface-container">
+                                <thead className="bg-surface-container-low">
                                     <tr>
                                         <th className="px-gap-sm py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Name</th>
                                         <th className="px-gap-sm py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Category</th>
