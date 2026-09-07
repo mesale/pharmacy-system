@@ -138,3 +138,4 @@ export default function Index({ filters, dailyData, summary }: Props) {
         </AdminLayout>
     );
 }
+
