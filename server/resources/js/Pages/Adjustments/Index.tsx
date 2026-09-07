@@ -28,9 +28,9 @@ export default function Index({ auth, adjustments }: Props) {
 
             <div className="py-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-surface-raised border border-border-subtle p-gap-md shadow">
+                    <div className="overflow-hidden bg-transparent">
                         
-                        <div className="flex justify-between items-center mb-gap-md">
+                        <div className="flex flex-wrap justify-between items-center mb-gap-md gap-4">
                             <div className="flex items-center gap-gap-sm text-text-primary">
                                 <span className="material-symbols-outlined">history</span>
                                 <h3 className="text-lg font-bold uppercase tracking-wider">Stock Adjustment Audit Log</h3>

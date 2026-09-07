@@ -117,7 +117,7 @@ export default function Index({ auth, products, flash = {} }: Props) {
                 </div>
             )}
 
-            <div className="h-[calc(100vh-140px)] flex flex-col lg:flex-row gap-gap-md pb-6">
+            <div className="h-[calc(100vh-88px)] flex flex-col lg:flex-row gap-gap-md pb-6">
                 
                 {/* LEFT COLUMN: Search & Catalog */}
                 <div className="w-full lg:w-7/12 flex flex-col bg-surface-raised border border-border-subtle overflow-hidden">
@@ -185,13 +185,13 @@ export default function Index({ auth, products, flash = {} }: Props) {
                     {/* Cart Items */}
                     <div className="flex-1 overflow-y-auto p-gap-md space-y-gap-sm bg-surface-base">
                         {cart.map(item => (
-                            <div key={item.product.id} className="flex justify-between items-center border-b border-border-subtle pb-gap-sm">
+                            <div key={item.product.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-border-subtle pb-gap-sm">
                                 <div className="flex-1 pr-2">
                                     <div className="font-bold text-text-primary text-lg truncate">{item.product.name}</div>
                                     <div className="text-sm text-text-muted">${item.product.selling_price} ea</div>
                                 </div>
                                 
-                                <div className="flex items-center gap-gap-md">
+                                <div className="flex flex-wrap items-center gap-gap-sm sm:gap-gap-md mt-2 sm:mt-0">
                                     <div className="flex items-center border border-border-strong bg-surface-overlay">
                                         <button onClick={() => updateQty(item.product.id, -1)} className="px-2 py-1 text-text-primary hover:bg-surface-container-high transition-colors font-bold text-lg">-</button>
                                         <span className="w-8 text-center font-mono font-bold text-text-primary border-x border-border-strong bg-surface-base">{item.quantity}</span>
@@ -253,7 +253,7 @@ export default function Index({ auth, products, flash = {} }: Props) {
                         </div>
 
                         {paymentMethod === 'cash' && (
-                            <div className="flex items-center gap-gap-md mb-gap-md p-gap-sm bg-surface-base border border-border-strong">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-gap-md mb-gap-md p-gap-sm bg-surface-base border border-border-strong">
                                 <div className="flex-1">
                                     <label className="text-xs font-bold text-text-muted uppercase tracking-wider block mb-1">Tendered Cash</label>
                                     <div className="relative">

@@ -131,7 +131,7 @@ export default function Show({ auth, product, suppliers, canViewCost }: Props) {
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-gap-lg">
 
                     {/* Product Info Card */}
-                    <div className="bg-surface-raised border border-border-subtle p-gap-md shadow">
+                    <div className="bg-transparent">
                         <div className="flex flex-wrap justify-between items-start gap-4">
                             <div>
                                 <div className="flex items-center gap-gap-sm mb-2">
@@ -174,8 +174,8 @@ export default function Show({ auth, product, suppliers, canViewCost }: Props) {
                     </div>
 
                     {/* FEFO Batch Table */}
-                    <div className="bg-surface-raised border border-border-subtle p-gap-md shadow">
-                        <div className="flex justify-between items-center mb-gap-md">
+                    <div className="bg-transparent">
+                        <div className="flex flex-wrap justify-between items-center mb-gap-md gap-4">
                             <h3 className="font-headline-sm text-headline-sm text-text-primary uppercase tracking-wider">FEFO Batch Ledger</h3>
                             {isAdmin && (
                                 <Button onClick={() => setShowBatchForm(!showBatchForm)} variant={showBatchForm ? 'outline' : 'default'}>

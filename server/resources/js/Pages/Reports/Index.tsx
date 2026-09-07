@@ -47,8 +47,8 @@ export default function Index({ filters, dailyData, summary }: Props) {
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-gap-md">
                     
                     {/* Filter Controls */}
-                    <div className="bg-surface-raised border border-border-subtle p-gap-md shadow">
-                        <form onSubmit={applyFilters} className="flex flex-wrap items-end gap-gap-md">
+                    <div className="bg-transparent">
+                        <form onSubmit={applyFilters} className="flex flex-col sm:flex-row sm:items-end items-stretch gap-gap-md">
                             <div>
                                 <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Start Date</label>
                                 <input type="date" className="block w-full bg-surface-base border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm" value={startDate} onChange={e => setStartDate(e.target.value)} required />
@@ -64,7 +64,7 @@ export default function Index({ filters, dailyData, summary }: Props) {
                     </div>
 
                     {/* Summary Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-gap-md">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gap-md">
                         <div className="bg-surface-raised overflow-hidden shadow border border-border-subtle p-gap-md border-l-4 border-l-status-info">
                             <div className="text-xs font-bold text-text-secondary uppercase tracking-wider truncate mb-1">Total Transactions</div>
                             <div className="text-3xl font-bold text-text-primary">{summary.total_transactions}</div>

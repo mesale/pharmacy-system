@@ -37,9 +37,9 @@ export default function Index({ auth, categories }: Props) {
 
             <div className="py-6">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-surface-raised border border-border-subtle p-gap-md shadow">
+                    <div className="overflow-hidden bg-transparent">
                         
-                        <div className="flex justify-between items-center mb-gap-md">
+                        <div className="flex flex-wrap justify-between items-center mb-gap-md gap-4">
                             <div className="flex items-center gap-gap-sm text-text-primary">
                                 <span className="material-symbols-outlined">category</span>
                                 <h3 className="text-lg font-bold uppercase tracking-wider">Product Categories</h3>
@@ -56,7 +56,7 @@ export default function Index({ auth, categories }: Props) {
                         </div>
 
                         {isCreating && (
-                            <form onSubmit={submit} className="mb-gap-lg p-gap-md bg-surface-overlay border border-primary flex items-end gap-gap-md">
+                            <form onSubmit={submit} className="mb-gap-lg p-gap-md bg-surface-overlay border border-primary flex flex-col sm:flex-row sm:items-end items-stretch gap-gap-md">
                                 <div className="flex-grow">
                                     <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Category Name *</label>
                                     <input type="text" className="block w-full bg-surface-base border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3" value={data.name} onChange={e => setData('name', e.target.value)} required />

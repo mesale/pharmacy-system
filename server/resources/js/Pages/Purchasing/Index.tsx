@@ -61,8 +61,8 @@ export default function Index({ auth, groupedSuggestions }: Props) {
                 )}
 
                 {Object.entries(groupedSuggestions).map(([supplier, items]) => (
-                    <div key={supplier} className="bg-surface-raised shadow-sm border border-border-subtle mb-8 print:shadow-none print:mb-12 print:break-inside-avoid print:bg-white print:border-none print:text-black">
-                        <div className="p-gap-md border-b border-border-subtle bg-surface-base print:bg-transparent print:border-b-2 print:border-black">
+                    <div key={supplier} className="bg-transparent mb-8 print:mb-12 print:break-inside-avoid print:bg-white print:text-black">
+                        <div className="p-gap-md border-b border-border-subtle bg-transparent print:border-b-2 print:border-black">
                             <h3 className="text-lg font-bold text-text-primary uppercase tracking-wider print:text-black">
                                 VENDOR: {supplier}
                             </h3>
