@@ -59,6 +59,26 @@ export default function Show({ auth, product, suppliers }: Props) {
         });
     };
 
+    const [adjustingBatch, setAdjustingBatch] = useState<StockBatch | null>(null);
+    const adjustForm = useForm({
+        quantity_change: '',
+        reason: 'damaged',
+        notes: '',
+    });
+
+    const openAdjustForm = (batch: StockBatch) => {
+        setAdjustingBatch(batch);
+        adjustForm.reset();
+    };
+
+    const submitAdjustment = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!adjustingBatch) return;
+        adjustForm.post(route('adjustments.store', adjustingBatch.id), {
+            onSuccess: () => setAdjustingBatch(null),
+        });
+    };
+
     const daysUntilExpiry = (dateStr: string) => {
         const diff = new Date(dateStr).getTime() - Date.now();
         return Math.ceil(diff / (1000 * 60 * 60 * 24));
@@ -179,6 +199,7 @@ export default function Show({ auth, product, suppliers }: Props) {
                                         <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Margin</th>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expiry</th>
                                         <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
+                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
@@ -221,6 +242,9 @@ export default function Show({ auth, product, suppliers }: Props) {
                                                     {days > 30 && days <= 90 && <span className="px-2 py-1 text-xs font-bold rounded bg-blue-100 text-blue-800">MONITOR</span>}
                                                     {days > 90 && <span className="px-2 py-1 text-xs font-bold rounded bg-green-100 text-green-800">STABLE</span>}
                                                 </td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-right">
+                                                    <Button variant="outline" size="sm" onClick={() => openAdjustForm(batch)}>Report Issue</Button>
+                                                </td>
                                             </tr>
                                         );
                                     })}
@@ -235,6 +259,43 @@ export default function Show({ auth, product, suppliers }: Props) {
                     </div>
                 </div>
             </div>
+
+            {/* Adjustment Modal */}
+            {adjustingBatch && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">Report Issue (Batch #{adjustingBatch.batch_number})</h3>
+                        <form onSubmit={submitAdjustment}>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Quantity to Deduct *</label>
+                                    <input type="number" max={adjustingBatch.quantity} min="1" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value={adjustForm.data.quantity_change ? Math.abs(Number(adjustForm.data.quantity_change)) : ''} onChange={e => adjustForm.setData('quantity_change', `-${e.target.value}`)} required />
+                                    <p className="text-xs text-gray-500 mt-1">Currently {adjustingBatch.quantity} in stock.</p>
+                                    {adjustForm.errors.quantity_change && <p className="text-red-500 text-xs mt-1">{adjustForm.errors.quantity_change}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Reason *</label>
+                                    <select className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value={adjustForm.data.reason} onChange={e => adjustForm.setData('reason', e.target.value)} required>
+                                        <option value="damaged">Damaged Product</option>
+                                        <option value="expired">Expired Product</option>
+                                        <option value="missing">Missing / Lost</option>
+                                        <option value="correction">Inventory Audit Correction</option>
+                                    </select>
+                                    {adjustForm.errors.reason && <p className="text-red-500 text-xs mt-1">{adjustForm.errors.reason}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Notes (Optional)</label>
+                                    <textarea className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm" rows={3} value={adjustForm.data.notes} onChange={e => adjustForm.setData('notes', e.target.value)}></textarea>
+                                </div>
+                            </div>
+                            <div className="mt-6 flex justify-end gap-3">
+                                <Button type="button" variant="outline" onClick={() => setAdjustingBatch(null)}>Cancel</Button>
+                                <Button type="submit" variant="destructive" disabled={adjustForm.processing}>Submit Report</Button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </AdminLayout>
     );
 }
