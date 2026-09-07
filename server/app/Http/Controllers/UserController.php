@@ -5,17 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Inertia\Inertia;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Validation\Rules;
+use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
     public function index()
     {
+        $users = User::with('roles')->get();
         return Inertia::render('Users/Index', [
-            'users' => User::with('roles', 'permissions')->get(),
-            'permissions' => Permission::all(),
+            'users' => $users
         ]);
     }
 
@@ -23,8 +23,9 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', Rules\Password::defaults()],
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => 'required|string|in:admin,worker',
         ]);
 
         $user = User::create([
@@ -33,7 +34,7 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $user->assignRole('worker');
+        $user->assignRole($request->role);
 
         return redirect()->back()->with('success', 'User created successfully.');
     }
@@ -41,16 +42,36 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'permissions' => 'array',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'role' => 'required|string|in:admin,worker',
         ]);
 
-        $user->syncPermissions($request->permissions ?? []);
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
 
-        return redirect()->back()->with('success', 'User permissions updated successfully.');
+        if ($request->filled('password')) {
+            $request->validate([
+                'password' => ['confirmed', Rules\Password::defaults()],
+            ]);
+            $user->update([
+                'password' => Hash::make($request->password),
+            ]);
+        }
+
+        $user->syncRoles([$request->role]);
+
+        return redirect()->back()->with('success', 'User updated successfully.');
     }
 
     public function destroy(User $user)
     {
+        if (auth()->id() === $user->id) {
+            return redirect()->back()->withErrors(['error' => 'You cannot delete yourself.']);
+        }
+        
         $user->delete();
         return redirect()->back()->with('success', 'User deleted successfully.');
     }

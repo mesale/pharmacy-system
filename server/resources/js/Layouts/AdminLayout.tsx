@@ -71,6 +71,10 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                                     <span className="material-symbols-outlined text-headline-sm">hub</span>
                                     <span className="font-headline-sm text-headline-sm">Suppliers</span>
                                 </Link>
+                                <Link href={route('users.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/users') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
+                                    <span className="material-symbols-outlined text-headline-sm">group</span>
+                                    <span className="font-headline-sm text-headline-sm">Staff & Users</span>
+                                </Link>
                                 <Link href={route('dashboard')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url === '/dashboard' ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
                                     <span className="material-symbols-outlined text-headline-sm">monitoring</span>
                                     <span className="font-headline-sm text-headline-sm">Executive Admin</span>
