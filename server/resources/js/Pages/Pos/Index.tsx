@@ -117,10 +117,10 @@ export default function Index({ auth, products, flash = {} }: Props) {
                 </div>
             )}
 
-            <div className="h-[calc(100vh-88px)] flex flex-col lg:flex-row gap-gap-md pb-6">
+            <div className="flex flex-col lg:flex-row lg:h-[calc(100vh-88px)] gap-gap-md pb-6">
                 
                 {/* LEFT COLUMN: Search & Catalog */}
-                <div className="w-full lg:w-7/12 flex flex-col bg-surface-raised border border-border-subtle overflow-hidden">
+                <div className="w-full lg:w-7/12 flex flex-col h-[50vh] lg:h-auto bg-surface-raised border border-border-subtle overflow-hidden">
                     <div className="p-gap-md border-b border-border-subtle bg-surface-base">
                         <div className="relative">
                             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">search</span>
