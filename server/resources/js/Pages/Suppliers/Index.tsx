@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 
@@ -39,9 +39,7 @@ export default function Index({ auth, suppliers }: Props) {
     };
 
     return (
-        <AuthenticatedLayout
-            header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Suppliers</h2>}
-        >
+        <AdminLayout>
             <Head title="Suppliers" />
 
             <div className="py-12">
@@ -116,7 +114,7 @@ export default function Index({ auth, suppliers }: Props) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }
 

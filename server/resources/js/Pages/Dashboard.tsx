@@ -1,6 +1,6 @@
 import React from 'react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
+import AdminLayout from '@/Layouts/AdminLayout';
 
 interface Props {
     auth: any;
@@ -29,97 +29,134 @@ export default function Dashboard({
     expiringBatchesCount,
     criticalAlerts
 }: Props) {
-    // Format currency
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
     };
 
     const profitMargin = grossSalesToday > 0 ? ((netProfitToday / grossSalesToday) * 100).toFixed(1) : '0.0';
+    const cogs = grossSalesToday - netProfitToday;
 
     return (
-        <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Executive Admin Dashboard</h2>}>
-            <Head title="Dashboard" />
-
-            <div className="py-6">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-6">
-                    
-                    {/* Telemetry Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* Gross Sales */}
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200 p-6 flex flex-col">
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Gross Sales Today</span>
-                            </div>
-                            <div className="mt-4 flex items-baseline justify-between">
-                                <span className="text-3xl font-bold text-gray-900">{formatCurrency(grossSalesToday)}</span>
-                                <span className="text-sm font-semibold text-gray-500">{transactionCountToday} TRANSACTIONS</span>
-                            </div>
+        <AdminLayout>
+            <Head title="Executive Admin Dashboard" />
+            
+            <div className="flex flex-col w-full pb-12">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-gap-md py-gap-lg border-b border-border-subtle bg-surface-base">
+                    <div className="flex flex-col">
+                        <div className="flex items-center gap-gap-xs">
+                            <span className="font-label-sm text-label-sm bg-surface-overlay text-primary border border-border-strong px-2 py-0.5">EXECUTIVE SUITE // PHARM-OPS v4.2</span>
+                            <span className="font-label-sm text-label-sm text-text-muted">CYCLE: REAL-TIME</span>
                         </div>
-
-                        {/* Net Profit */}
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-indigo-100 p-6 flex flex-col">
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-bold text-indigo-600 uppercase tracking-wider">Net Realized Profit</span>
-                                <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded font-bold">{profitMargin}% MARGIN</span>
-                            </div>
-                            <div className="mt-4 flex items-baseline justify-between">
-                                <span className="text-3xl font-bold text-indigo-700">{formatCurrency(netProfitToday)}</span>
-                                <span className="text-sm font-semibold text-red-500">COGS: {formatCurrency(grossSalesToday - netProfitToday)}</span>
-                            </div>
-                        </div>
-
-                        {/* FEFO Expiry Risk */}
-                        <div className={`overflow-hidden shadow-sm sm:rounded-lg border p-6 flex flex-col ${expiringBatchesCount > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200'}`}>
-                            <div className="flex items-center justify-between">
-                                <span className={`text-sm font-bold uppercase tracking-wider ${expiringBatchesCount > 0 ? 'text-red-700' : 'text-gray-500'}`}>FEFO Expiry Risk</span>
-                                {expiringBatchesCount > 0 && <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded font-bold">&lt;30 DAYS</span>}
-                            </div>
-                            <div className="mt-4 flex items-baseline justify-between">
-                                <span className={`text-3xl font-bold ${expiringBatchesCount > 0 ? 'text-red-700' : 'text-gray-900'}`}>{expiringBatchesCount}</span>
-                                <span className="text-sm font-semibold text-gray-500">BATCHES FLAGGED</span>
-                            </div>
+                        <div className="flex items-baseline gap-gap-md mt-0.5">
+                            <h1 className="font-headline-lg text-headline-lg text-text-primary tracking-tight">OPERATIONAL FISCAL OVERSIGHT</h1>
+                            <span className="font-body-sm text-body-sm text-status-success flex items-center gap-1 font-semibold">
+                                <span className="w-2 h-2 bg-status-success rounded-full animate-ping"></span>
+                                REAL-TIME TELEMETRY CONNECTED
+                            </span>
                         </div>
                     </div>
-
-                    {/* Lower Section */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        
-                        {/* Clinical Deficit & Reorder Safety Triggers */}
-                        <div className="lg:col-span-2 bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200 p-6">
-                            <div className="flex items-center gap-2 pb-4 border-b border-gray-100 mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                                <div>
-                                    <h2 className="text-lg font-bold text-gray-900 uppercase">Clinical Deficit & Reorder Safety Triggers</h2>
-                                    <p className="text-xs text-gray-500">Automated Minimum Safety Floor Depletions & FEFO Alerts</p>
+                    <div className="flex items-center gap-gap-sm self-stretch md:self-auto">
+                        <div className="flex bg-surface-raised border border-border-subtle p-0.5">
+                            <button className="px-3 py-1 font-label-sm text-label-sm bg-primary text-surface-base font-bold transition-all">DAY</button>
+                            <button className="px-3 py-1 font-label-sm text-label-sm text-text-muted hover:text-text-primary transition-all">7D TRAILING</button>
+                            <button className="px-3 py-1 font-label-sm text-label-sm text-text-muted hover:text-text-primary transition-all">M-T-D</button>
+                        </div>
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-raised border border-border-subtle hover:border-primary text-text-primary font-label-sm text-label-sm transition-colors">
+                            <span className="material-symbols-outlined text-label-lg">print</span>
+                            <span>FISCAL LEDGER</span>
+                        </button>
+                    </div>
+                </div>
+                <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-gap-sm py-gap-lg">
+                    <div className="bg-surface-raised border border-border-subtle p-3 flex flex-col justify-between relative overflow-hidden group hover:border-border-strong transition-colors">
+                        <div className="flex items-center justify-between">
+                            <span className="font-label-sm text-label-sm text-text-muted uppercase">Gross Sales Today</span>
+                            <span className="font-label-sm text-label-sm bg-status-success-bg text-status-success px-1 py-0.5 border border-status-success flex items-center gap-0.5">
+                                LIVE
+                            </span>
+                        </div>
+                        <div className="mt-2 flex items-baseline justify-between">
+                            <span className="font-data-tabular-lg text-data-tabular-lg text-text-primary font-bold tracking-tight">{formatCurrency(grossSalesToday)}</span>
+                            <span className="font-label-sm text-label-sm text-text-secondary">{transactionCountToday} TRANSACTIONS</span>
+                        </div>
+                        <div className="mt-2 w-full bg-surface-base h-1 overflow-hidden">
+                            <div className="bg-primary h-full w-[100%]"></div>
+                        </div>
+                    </div>
+                    <div className="bg-surface-raised border border-border-subtle p-3 flex flex-col justify-between relative overflow-hidden group hover:border-border-strong transition-colors">
+                        <div className="flex items-center justify-between">
+                            <span className="font-label-sm text-label-sm text-text-muted uppercase">Net Realized Profit</span>
+                            <span className="font-label-sm text-label-sm text-primary font-bold">{profitMargin}% MARGIN</span>
+                        </div>
+                        <div className="mt-2 flex items-baseline justify-between">
+                            <span className="font-data-tabular-lg text-data-tabular-lg text-primary font-bold tracking-tight">{formatCurrency(netProfitToday)}</span>
+                            <span className="font-label-sm text-label-sm text-status-critical font-medium">COGS: -{formatCurrency(cogs)}</span>
+                        </div>
+                        <div className="mt-2 w-full bg-surface-base h-1 flex">
+                            <div className="bg-primary h-full" style={{ width: `${profitMargin}%` }}></div>
+                            <div className="bg-surface-container-highest h-full" style={{ width: `${100 - parseFloat(profitMargin)}%` }}></div>
+                        </div>
+                    </div>
+                    <div className={`bg-surface-raised border p-3 flex flex-col justify-between relative overflow-hidden group transition-colors ${expiringBatchesCount > 0 ? 'border-status-warning hover:border-status-warning' : 'border-border-subtle hover:border-border-strong'}`}>
+                        <div className="flex items-center justify-between">
+                            <span className={`font-label-sm text-label-sm uppercase font-semibold ${expiringBatchesCount > 0 ? 'text-status-warning' : 'text-text-muted'}`}>FEFO Expiry Risk</span>
+                            {expiringBatchesCount > 0 && <span className="bg-status-warning-bg text-status-warning border border-status-warning font-label-sm text-label-sm px-1">&lt;30 DAYS</span>}
+                        </div>
+                        <div className="mt-2 flex items-baseline justify-between">
+                            <span className={`font-data-tabular-lg text-data-tabular-lg font-bold tracking-tight ${expiringBatchesCount > 0 ? 'text-status-warning' : 'text-text-primary'}`}>{expiringBatchesCount}</span>
+                            <span className="font-label-sm text-label-sm text-text-secondary">BATCHES FLAGGED</span>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between text-[10px] text-text-muted">
+                            <span>ACTION</span>
+                            {expiringBatchesCount > 0 ? <span className="text-status-warning">REQUIRED</span> : <span>NONE</span>}
+                        </div>
+                    </div>
+                </section>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-gap-lg">
+                    <div className="lg:col-span-8 flex flex-col gap-gap-lg">
+                        <div className="bg-surface-raised border border-border-subtle p-4">
+                            <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
+                                <div className="flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-status-critical text-headline-sm">fmd_bad</span>
+                                    <div>
+                                        <h2 className="font-headline-sm text-headline-sm text-text-primary uppercase tracking-wide">Clinical Deficit &amp; Reorder Safety Triggers</h2>
+                                        <p className="font-label-sm text-label-sm text-text-muted">Automated Minimum Safety Floor Depletions (PAR Thresholds)</p>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <div className="overflow-x-auto">
+                            <div className="overflow-x-auto mt-2">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
-                                        <tr className="border-b border-gray-200 text-xs text-gray-500 uppercase">
-                                            <th className="py-2 px-2">Alert / Product</th>
-                                            <th className="py-2 px-2">Status</th>
+                                        <tr className="border-b border-border-subtle font-label-sm text-label-sm text-text-muted uppercase">
+                                            <th className="py-2 px-2">NDC / Molecule</th>
+                                            <th className="py-2 px-2">Current Stock</th>
+                                            <th className="py-2 px-2">PAR Floor / Expiry</th>
                                             <th className="py-2 px-2 text-right">Action Protocol</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-100 text-sm">
+                                    <tbody className="divide-y divide-border-subtle font-body-sm text-body-sm">
                                         {criticalAlerts.map((alert, idx) => (
-                                            <tr key={idx} className={alert.type === 'low_stock' ? 'bg-red-50' : 'bg-orange-50'}>
-                                                <td className="py-3 px-2">
-                                                    <div className="font-bold text-gray-900">{alert.product}</div>
-                                                    <div className="text-xs text-gray-500">
-                                                        {alert.type === 'low_stock' ? `Barcode: ${alert.barcode}` : `Batch: ${alert.batch_number}`}
+                                            <tr key={idx} className={alert.type === 'low_stock' ? 'bg-status-critical-bg/20 hover:bg-surface-overlay transition-colors' : 'hover:bg-surface-overlay transition-colors'}>
+                                                <td className="py-2 px-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`w-1.5 h-5 ${alert.type === 'low_stock' ? 'bg-status-critical' : 'bg-status-warning'}`}></span>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-headline-sm text-headline-sm text-text-primary">{alert.product}</span>
+                                                            <span className="font-label-sm text-label-sm text-text-muted">
+                                                                {alert.type === 'low_stock' ? `Barcode: ${alert.barcode}` : `Batch: ${alert.batch_number}`}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </td>
-                                                <td className="py-3 px-2 font-mono font-bold text-red-600">
-                                                    {alert.type === 'low_stock' ? `${alert.current_stock} Units` : `Expires: ${alert.expiry_date}`}
-                                                    <div className="text-[10px] text-gray-500 font-sans mt-1">{alert.message}</div>
+                                                <td className={`py-2 px-2 font-mono font-bold ${alert.type === 'low_stock' ? 'text-status-critical' : 'text-status-warning'}`}>
+                                                    {alert.type === 'low_stock' ? `${alert.current_stock} Units` : `${alert.quantity} Units Expiring`}
+                                                    <span className="text-[9px] block text-text-muted">{alert.message}</span>
                                                 </td>
-                                                <td className="py-3 px-2 text-right">
-                                                    <Link href={route('products.index')} className="px-3 py-1 bg-white border border-gray-300 text-gray-700 text-xs font-bold rounded shadow-sm hover:bg-gray-50">
+                                                <td className="py-2 px-2 font-mono text-text-primary">
+                                                    {alert.type === 'low_stock' ? `${alert.threshold} Units` : `${alert.expiry_date}`}
+                                                </td>
+                                                <td className="py-2 px-2 text-right">
+                                                    <Link href={route('products.index')} className={`px-2 py-1 font-label-sm text-label-sm font-bold uppercase transition-all ${alert.type === 'low_stock' ? 'bg-status-critical text-text-primary hover:brightness-110 active:scale-95' : 'bg-surface-base border border-border-strong text-text-primary hover:border-primary'}`}>
                                                         VIEW ITEM
                                                     </Link>
                                                 </td>
@@ -127,58 +164,72 @@ export default function Dashboard({
                                         ))}
                                         {criticalAlerts.length === 0 && (
                                             <tr>
-                                                <td colSpan={3} className="py-8 text-center text-gray-400">All systems nominal. No alerts.</td>
+                                                <td colSpan={4} className="py-8 text-center font-body-sm text-body-sm text-text-muted">Systems nominal. No active alerts.</td>
                                             </tr>
                                         )}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-
-                        {/* Executive Control Rail */}
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200 p-6">
-                            <div className="flex items-center gap-2 pb-4 border-b border-gray-100 mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                <h2 className="text-lg font-bold text-gray-900 uppercase">Executive Control Rail</h2>
+                    </div>
+                    <div className="lg:col-span-4 flex flex-col gap-gap-lg">
+                        <div className="bg-surface-raised border border-border-subtle p-4">
+                            <div className="flex items-center gap-2 pb-3 border-b border-border-subtle">
+                                <span className="material-symbols-outlined text-primary text-headline-sm">admin_panel_settings</span>
+                                <h3 className="font-headline-sm text-headline-sm text-text-primary uppercase">Executive Control Rail</h3>
                             </div>
-                            
-                            <div className="space-y-3">
-                                <Link href={route('products.index')} className="flex items-center justify-between p-3 border rounded hover:border-indigo-500 hover:bg-indigo-50 transition-colors group">
-                                    <div>
-                                        <div className="font-bold text-gray-900 group-hover:text-indigo-700">Receive Stock Batch</div>
-                                        <div className="text-xs text-gray-500">FEFO expiration stamping</div>
+                            <div className="grid grid-cols-1 gap-2 mt-3">
+                                <Link href={route('products.index')} className="flex items-center justify-between p-2.5 bg-surface-base border border-border-subtle hover:border-primary text-text-primary group transition-colors">
+                                    <div className="flex items-center gap-2.5">
+                                        <span className="material-symbols-outlined text-tertiary text-headline-sm">add_box</span>
+                                        <div className="flex flex-col text-left">
+                                            <span className="font-headline-sm text-headline-sm text-text-primary">New Stock Batch / PO Entry</span>
+                                            <span className="font-label-sm text-label-sm text-text-muted">FEFO expiration stamping and NDC ingestion</span>
+                                        </div>
                                     </div>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 group-hover:text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                    </svg>
+                                    <span className="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors">chevron_right</span>
                                 </Link>
-                                <Link href={route('suppliers.index')} className="flex items-center justify-between p-3 border rounded hover:border-indigo-500 hover:bg-indigo-50 transition-colors group">
-                                    <div>
-                                        <div className="font-bold text-gray-900 group-hover:text-indigo-700">Supplier Management</div>
-                                        <div className="text-xs text-gray-500">Manage vendors & contacts</div>
+                                <Link href={route('suppliers.index')} className="flex items-center justify-between p-2.5 bg-surface-base border border-border-subtle hover:border-primary text-text-primary group transition-colors">
+                                    <div className="flex items-center gap-2.5">
+                                        <span className="material-symbols-outlined text-secondary text-headline-sm">hub</span>
+                                        <div className="flex flex-col text-left">
+                                            <span className="font-headline-sm text-headline-sm text-text-primary">Supplier Management</span>
+                                            <span className="font-label-sm text-label-sm text-text-muted">EDI 850 links and pricing agreements</span>
+                                        </div>
                                     </div>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 group-hover:text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                    </svg>
+                                    <span className="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors">chevron_right</span>
                                 </Link>
-                                <Link href={route('users.index')} className="flex items-center justify-between p-3 border rounded hover:border-indigo-500 hover:bg-indigo-50 transition-colors group">
-                                    <div>
-                                        <div className="font-bold text-gray-900 group-hover:text-indigo-700">Staff Management</div>
-                                        <div className="text-xs text-gray-500">Roles & permissions</div>
+                                <Link href={route('categories.index')} className="flex items-center justify-between p-2.5 bg-surface-base border border-border-subtle hover:border-primary text-text-primary group transition-colors">
+                                    <div className="flex items-center gap-2.5">
+                                        <span className="material-symbols-outlined text-text-secondary text-headline-sm">category</span>
+                                        <div className="flex flex-col text-left">
+                                            <span className="font-headline-sm text-headline-sm text-text-primary">Category Organization</span>
+                                            <span className="font-label-sm text-label-sm text-text-muted">Manage product taxonomies</span>
+                                        </div>
                                     </div>
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 group-hover:text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                    </svg>
+                                    <span className="material-symbols-outlined text-text-muted group-hover:text-primary transition-colors">chevron_right</span>
                                 </Link>
                             </div>
                         </div>
-
+                        <div className="bg-surface-raised border border-border-subtle p-3 flex flex-col gap-2">
+                            <div className="flex items-center justify-between">
+                                <span className="font-label-sm text-label-sm text-text-muted uppercase">HARDWARE STATUS</span>
+                                <span className="font-label-sm text-label-sm text-status-success font-bold">ALL SYSTEMS NOMINAL</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-label-sm text-label-sm">
+                                <div className="bg-surface-base p-2 border border-border-subtle flex flex-col">
+                                    <span className="text-text-muted">T-01 HONEYWELL 1950G</span>
+                                    <span className="text-primary font-mono">ONLINE &middot; 99% BAT</span>
+                                </div>
+                                <div className="bg-surface-base p-2 border border-border-subtle flex flex-col">
+                                    <span className="text-text-muted">EPSON TM-T88VI</span>
+                                    <span className="text-primary font-mono">FEED READY &middot; PAPER OK</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

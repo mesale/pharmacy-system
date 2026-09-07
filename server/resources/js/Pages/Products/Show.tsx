@@ -65,9 +65,7 @@ export default function Show({ auth, product, suppliers }: Props) {
     };
 
     return (
-        <AuthenticatedLayout
-            header={<h2 className="text-xl font-semibold leading-tight text-gray-800">{product.name}</h2>}
-        >
+        <AdminLayout>
             <Head title={product.name} />
 
             <div className="py-12">
@@ -237,6 +235,6 @@ export default function Show({ auth, product, suppliers }: Props) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

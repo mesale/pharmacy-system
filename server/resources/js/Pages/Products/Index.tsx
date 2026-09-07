@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm, router } from '@inertiajs/react';
+import AdminLayout from '@/Layouts/AdminLayout';
+import { Head, Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 
 interface Product {
@@ -44,9 +44,7 @@ export default function Index({ auth, products, categories }: Props) {
     const isAdmin = auth.user?.roles?.includes('admin');
 
     return (
-        <AuthenticatedLayout
-            header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Products</h2>}
-        >
+        <AdminLayout>
             <Head title="Products" />
 
             <div className="py-12">
@@ -157,6 +155,6 @@ export default function Index({ auth, products, categories }: Props) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }
