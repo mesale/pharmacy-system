@@ -72,4 +72,20 @@ class ReportController extends Controller
             ],
         ]);
     }
+
+    public function showDay(Request $request, $date)
+    {
+        $parsedDate = Carbon::parse($date);
+        
+        $items = \App\Models\SaleItem::whereHas('sale', function ($query) use ($parsedDate) {
+                $query->whereDate('created_at', $parsedDate->toDateString());
+            })
+            ->join('products', 'sale_items.product_id', '=', 'products.id')
+            ->selectRaw('products.name, SUM(sale_items.quantity) as total_quantity, SUM(sale_items.quantity * sale_items.unit_price) as total_revenue')
+            ->groupBy('products.id', 'products.name')
+            ->orderByDesc('total_revenue')
+            ->get();
+            
+        return response()->json($items);
+    }
 }

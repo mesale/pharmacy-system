@@ -25,11 +25,11 @@ interface Props {
 }
 
 const INPUT_CLASS =
-    'mt-1 block w-full bg-surface-base border border-border-strong text-text-primary ' +
-    'placeholder:text-text-muted focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm';
+    'mt-1 block w-full bg-white shadow-sm rounded-lg border border-gray-300 text-gray-900 ' +
+    'placeholder:text-gray-500 focus:border-emerald-600 focus:ring-1 focus:ring-primary py-2 px-3 text-sm';
 const LABEL_CLASS =
-    'block text-xs font-bold text-text-secondary uppercase tracking-wider';
-const ERROR_CLASS = 'text-status-critical text-xs mt-1 font-bold';
+    'block text-xs font-bold text-gray-600 uppercase tracking-wider';
+const ERROR_CLASS = 'text-red-600 text-xs mt-1 font-bold';
 
 export default function Create({ auth, categories, product }: Props) {
     const isEditing = !!product;
@@ -62,12 +62,12 @@ export default function Create({ auth, categories, product }: Props) {
 
             <div className="py-6">
                 <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
-                    <h2 className="font-headline-lg text-headline-lg text-text-primary mb-gap-lg">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
                         {isEditing ? 'Edit' : 'Add'} Product
                     </h2>
-                    <div className="bg-surface-raised border border-border-subtle p-gap-lg shadow">
+                    <div className="bg-white shadow-md rounded-lg border border-gray-200 p-6 shadow">
                         <form onSubmit={submit} className="space-y-gap-lg">
-                            <div className="grid grid-cols-1 gap-gap-md sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div className="sm:col-span-2">
                                     <label className={LABEL_CLASS}>Product Name *</label>
                                     <input type="text" className={INPUT_CLASS} value={data.name} onChange={e => setData('name', e.target.value)} required />
@@ -115,19 +115,19 @@ export default function Create({ auth, categories, product }: Props) {
                                     {errors.reorder_level && <p className={ERROR_CLASS}>{errors.reorder_level}</p>}
                                 </div>
 
-                                <div className="sm:col-span-2 flex gap-gap-lg border-t border-border-strong pt-gap-md">
+                                <div className="sm:col-span-2 flex gap-6 border-t border-gray-300 pt-gap-md">
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" className="bg-surface-base border-border-strong text-primary focus:ring-primary" checked={data.requires_prescription} onChange={e => setData('requires_prescription', e.target.checked)} />
-                                        <span className="text-xs font-bold text-text-primary uppercase tracking-wider">Requires Prescription</span>
+                                        <input type="checkbox" className="bg-white shadow-sm rounded-lg border-gray-300 text-emerald-600 focus:ring-primary" checked={data.requires_prescription} onChange={e => setData('requires_prescription', e.target.checked)} />
+                                        <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">Requires Prescription</span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" className="bg-surface-base border-border-strong text-status-critical focus:ring-status-critical" checked={data.is_controlled} onChange={e => setData('is_controlled', e.target.checked)} />
-                                        <span className="text-xs font-bold text-text-primary uppercase tracking-wider">Controlled Substance</span>
+                                        <input type="checkbox" className="bg-white shadow-sm rounded-lg border-gray-300 text-red-600 focus:ring-status-critical" checked={data.is_controlled} onChange={e => setData('is_controlled', e.target.checked)} />
+                                        <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">Controlled Substance</span>
                                     </label>
                                 </div>
                             </div>
 
-                            <div className="flex justify-end gap-gap-sm">
+                            <div className="flex justify-end gap-3">
                                 <Button type="button" variant="outline" onClick={() => window.history.back()}>Cancel</Button>
                                 <Button type="submit" disabled={processing}>{isEditing ? 'Update' : 'Create'} Product</Button>
                             </div>

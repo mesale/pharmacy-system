@@ -40,11 +40,11 @@ interface Props {
 }
 
 const INPUT_CLASS =
-    'mt-1 block w-full bg-surface-base border border-border-strong text-text-primary ' +
-    'placeholder:text-text-muted focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm';
+    'mt-1 block w-full bg-white shadow-sm rounded-lg border border-gray-300 text-gray-900 ' +
+    'placeholder:text-gray-500 focus:border-emerald-600 focus:ring-1 focus:ring-primary py-2 px-3 text-sm';
 const LABEL_CLASS =
-    'block text-xs font-bold text-text-secondary uppercase tracking-wider';
-const ERROR_CLASS = 'text-status-critical text-xs mt-1 font-bold';
+    'block text-xs font-bold text-gray-600 uppercase tracking-wider';
+const ERROR_CLASS = 'text-red-600 text-xs mt-1 font-bold';
 
 /** Today as YYYY-MM-DD, to compare against the date-only expiry column. */
 const today = () => new Date().toISOString().slice(0, 10);
@@ -134,37 +134,37 @@ export default function Show({ auth, product, suppliers, canViewCost }: Props) {
                     <div className="bg-transparent">
                         <div className="flex flex-wrap justify-between items-start gap-4">
                             <div>
-                                <div className="flex items-center gap-gap-sm mb-2">
+                                <div className="flex items-center gap-3 mb-2">
                                     {product.requires_prescription && (
                                         <span className="px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider bg-status-info-bg text-status-info border border-status-info">Rx Required</span>
                                     )}
                                     {product.is_controlled && (
-                                        <span className="px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider bg-status-critical-bg text-status-critical border border-status-critical">Controlled</span>
+                                        <span className="px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider bg-red-50 text-red-600 border border-red-200">Controlled</span>
                                     )}
                                     {product.category && (
-                                        <span className="px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider bg-surface-container text-on-surface-variant border border-border-subtle">{product.category.name}</span>
+                                        <span className="px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider bg-gray-100 rounded text-gray-600 border border-gray-200">{product.category.name}</span>
                                     )}
                                 </div>
-                                <h1 className="font-headline-lg text-headline-lg text-text-primary">{product.name}</h1>
-                                <p className="text-sm text-text-muted mt-1">
+                                <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
+                                <p className="text-sm text-gray-500 mt-1">
                                     Barcode: <span className="font-mono">{product.barcode || 'N/A'}</span> · Unit: {product.unit}
                                 </p>
                             </div>
                             <div className="text-right">
-                                <div className="text-xs font-bold text-text-secondary uppercase tracking-wider">Selling Price</div>
-                                <div className="font-data-tabular-lg text-data-tabular-lg text-primary">${product.selling_price}</div>
+                                <div className="text-xs font-bold text-gray-600 uppercase tracking-wider">Selling Price</div>
+                                <div className="text-3xl font-mono font-bold tracking-tight text-emerald-600">${product.selling_price}</div>
                             </div>
                         </div>
 
                         {/* Stock Summary Bar */}
-                        <div className="mt-gap-lg bg-surface-overlay border border-border-subtle p-gap-md">
+                        <div className="mt-6 bg-gray-50 rounded border border-gray-200 p-4">
                             <div className="flex items-center justify-between mb-2">
-                                <span className="text-xs font-bold text-text-secondary uppercase tracking-wider">Inventory Health</span>
-                                <span className={`text-sm font-bold ${isLowStock ? 'text-status-critical' : 'text-status-success'}`}>
+                                <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">Inventory Health</span>
+                                <span className={`text-sm font-bold ${isLowStock ? 'text-red-600' : 'text-green-600'}`}>
                                     {totalStock} sellable units on hand (Reorder at {product.reorder_level})
                                 </span>
                             </div>
-                            <div className="w-full h-3 bg-surface-container-high overflow-hidden">
+                            <div className="w-full h-3 bg-gray-200 rounded overflow-hidden">
                                 <div
                                     className={`h-full transition-all ${isLowStock ? 'bg-status-critical' : 'bg-status-success'}`}
                                     style={{ width: `${stockBarWidth}%` }}
@@ -175,8 +175,8 @@ export default function Show({ auth, product, suppliers, canViewCost }: Props) {
 
                     {/* FEFO Batch Table */}
                     <div className="bg-transparent">
-                        <div className="flex flex-wrap justify-between items-center mb-gap-md gap-4">
-                            <h3 className="font-headline-sm text-headline-sm text-text-primary uppercase tracking-wider">FEFO Batch Ledger</h3>
+                        <div className="flex flex-wrap justify-between items-center mb-4 gap-4">
+                            <h3 className="text-lg font-medium text-gray-900 uppercase tracking-wider">FEFO Batch Ledger</h3>
                             {isAdmin && (
                                 <Button onClick={() => setShowBatchForm(!showBatchForm)} variant={showBatchForm ? 'outline' : 'default'}>
                                     {showBatchForm ? 'Cancel' : 'Receive New Batch'}
@@ -185,9 +185,9 @@ export default function Show({ auth, product, suppliers, canViewCost }: Props) {
                         </div>
 
                         {showBatchForm && (
-                            <form onSubmit={submitBatch} className="mb-gap-lg p-gap-md bg-surface-overlay border border-primary">
-                                <h4 className="text-md font-bold text-text-primary uppercase tracking-wider mb-gap-md">Batch Intake</h4>
-                                <div className="grid grid-cols-1 gap-gap-md sm:grid-cols-3">
+                            <form onSubmit={submitBatch} className="mb-6 p-4 bg-gray-50 rounded border border-emerald-600">
+                                <h4 className="text-md font-bold text-gray-900 uppercase tracking-wider mb-4">Batch Intake</h4>
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                     <div>
                                         <label className={LABEL_CLASS}>Batch Number *</label>
                                         <input type="text" className={INPUT_CLASS} value={data.batch_number} onChange={e => setData('batch_number', e.target.value)} required />
@@ -222,27 +222,27 @@ export default function Show({ auth, product, suppliers, canViewCost }: Props) {
                                         {errors.received_date && <p className={ERROR_CLASS}>{errors.received_date}</p>}
                                     </div>
                                 </div>
-                                <div className="mt-gap-md flex justify-end">
+                                <div className="mt-4 flex justify-end">
                                     <Button type="submit" disabled={processing}>Save Batch</Button>
                                 </div>
                             </form>
                         )}
 
-                        <div className="overflow-x-auto border border-border-subtle bg-surface-base">
+                        <div className="overflow-x-auto border border-gray-200 bg-white shadow-sm rounded-lg">
                             <table className="min-w-full divide-y divide-border-subtle">
-                                <thead className="bg-surface-container">
+                                <thead className="bg-gray-100 rounded">
                                     <tr>
-                                        <th className="px-4 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">FEFO Priority</th>
-                                        <th className="px-4 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Supplier</th>
-                                        <th className="px-4 py-3 text-right text-xs font-bold text-text-secondary uppercase tracking-wider">Qty</th>
-                                        {canViewCost && <th className="px-4 py-3 text-right text-xs font-bold text-text-secondary uppercase tracking-wider">Cost</th>}
-                                        {canViewCost && <th className="px-4 py-3 text-right text-xs font-bold text-text-secondary uppercase tracking-wider">Margin</th>}
-                                        <th className="px-4 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Expiry</th>
-                                        <th className="px-4 py-3 text-center text-xs font-bold text-text-secondary uppercase tracking-wider">Status</th>
-                                        <th className="px-4 py-3 text-right text-xs font-bold text-text-secondary uppercase tracking-wider">Actions</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">FEFO Priority</th>
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Supplier</th>
+                                        <th className="px-4 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Qty</th>
+                                        {canViewCost && <th className="px-4 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Cost</th>}
+                                        {canViewCost && <th className="px-4 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Margin</th>}
+                                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Expiry</th>
+                                        <th className="px-4 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                                        <th className="px-4 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-border-subtle bg-surface-base">
+                                <tbody className="divide-y divide-border-subtle bg-white shadow-sm rounded-lg">
                                     {product.stock_batches.map((batch, index) => {
                                         const days = daysUntilExpiry(batch.expiry_date);
                                         const expired = isExpired(batch.expiry_date);
@@ -256,14 +256,14 @@ export default function Show({ auth, product, suppliers, canViewCost }: Props) {
                                         return (
                                             <tr
                                                 key={batch.id}
-                                                className={`${isPriority ? 'bg-status-warning-bg/30' : ''} ${expired || depleted ? 'opacity-60' : ''} hover:bg-surface-container-low transition-colors`}
+                                                className={`${isPriority ? 'bg-yellow-50/30' : ''} ${expired || depleted ? 'opacity-60' : ''} hover:bg-gray-50 rounded transition-colors`}
                                             >
                                                 <td className="px-4 py-3 whitespace-nowrap">
-                                                    <div className="flex items-center gap-gap-sm">
+                                                    <div className="flex items-center gap-3">
                                                         <span className={`w-1.5 h-6 ${expired ? 'bg-status-critical' : days <= 30 ? 'bg-status-critical' : days <= 90 ? 'bg-status-warning' : 'bg-status-success'}`}></span>
                                                         <div>
-                                                            <span className="text-sm font-bold text-text-primary font-mono">#{batch.batch_number}</span>
-                                                            <span className="block text-xs text-text-muted uppercase tracking-wider">
+                                                            <span className="text-sm font-bold text-gray-900 font-mono">#{batch.batch_number}</span>
+                                                            <span className="block text-xs text-gray-500 uppercase tracking-wider">
                                                                 {isPriority
                                                                     ? 'Priority dispense'
                                                                     : expired
@@ -275,27 +275,27 @@ export default function Show({ auth, product, suppliers, canViewCost }: Props) {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-text-secondary">
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
                                                     {batch.supplier?.name || '—'}
                                                 </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-bold text-text-primary">{batch.quantity}</td>
-                                                {canViewCost && <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-text-secondary">${batch.cost_price}</td>}
-                                                {canViewCost && <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-status-success font-bold">+{margin}%</td>}
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-right font-bold text-gray-900">{batch.quantity}</td>
+                                                {canViewCost && <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-600">${batch.cost_price}</td>}
+                                                {canViewCost && <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-green-600 font-bold">+{margin}%</td>}
                                                 <td className="px-4 py-3 whitespace-nowrap text-sm">
                                                     <div>
-                                                        <span className={`font-bold ${expired || days <= 30 ? 'text-status-critical' : days <= 90 ? 'text-status-warning' : 'text-text-primary'}`}>
+                                                        <span className={`font-bold ${expired || days <= 30 ? 'text-red-600' : days <= 90 ? 'text-yellow-600' : 'text-gray-900'}`}>
                                                             {new Date(batch.expiry_date).toLocaleDateString()}
                                                         </span>
-                                                        <span className={`block text-xs font-bold uppercase tracking-wider ${expired || days <= 30 ? 'text-status-critical' : days <= 90 ? 'text-status-warning' : 'text-status-success'}`}>
+                                                        <span className={`block text-xs font-bold uppercase tracking-wider ${expired || days <= 30 ? 'text-red-600' : days <= 90 ? 'text-yellow-600' : 'text-green-600'}`}>
                                                             {expired ? 'Expired' : `${days} days`}
                                                         </span>
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3 whitespace-nowrap text-center">
-                                                    {expired && <span className="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-status-critical-bg text-status-critical border border-status-critical">Expired</span>}
-                                                    {!expired && days <= 30 && <span className="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-status-warning-bg text-status-warning border border-status-warning">Critical</span>}
+                                                    {expired && <span className="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-red-50 text-red-600 border border-red-200">Expired</span>}
+                                                    {!expired && days <= 30 && <span className="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-yellow-50 text-yellow-600 border border-yellow-200">Critical</span>}
                                                     {!expired && days > 30 && days <= 90 && <span className="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-status-info-bg text-status-info border border-status-info">Monitor</span>}
-                                                    {!expired && days > 90 && <span className="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-status-success-bg text-status-success border border-status-success">Stable</span>}
+                                                    {!expired && days > 90 && <span className="px-2 py-1 text-xs font-bold uppercase tracking-wider bg-green-50 text-green-600 border border-green-200">Stable</span>}
                                                 </td>
                                                 <td className="px-4 py-3 whitespace-nowrap text-right">
                                                     {/* Nothing left to write off in an empty batch. */}
@@ -308,7 +308,7 @@ export default function Show({ auth, product, suppliers, canViewCost }: Props) {
                                     })}
                                     {product.stock_batches.length === 0 && (
                                         <tr>
-                                            <td colSpan={columnCount} className="px-4 py-8 text-center text-text-muted">
+                                            <td colSpan={columnCount} className="px-4 py-8 text-center text-gray-500">
                                                 No batches received yet.
                                             </td>
                                         </tr>
@@ -323,8 +323,8 @@ export default function Show({ auth, product, suppliers, canViewCost }: Props) {
             {/* Adjustment Modal */}
             {adjustingBatch && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-                    <div className="bg-surface-raised border border-border-strong shadow-xl max-w-md w-full p-gap-lg">
-                        <h3 className="font-headline-sm text-headline-sm text-text-primary uppercase tracking-wider mb-gap-md">
+                    <div className="bg-white shadow-md rounded-lg border border-gray-300 shadow-xl max-w-md w-full p-6">
+                        <h3 className="text-lg font-medium text-gray-900 uppercase tracking-wider mb-4">
                             Report Issue (Batch #{adjustingBatch.batch_number})
                         </h3>
                         <form onSubmit={submitAdjustment}>
@@ -340,7 +340,7 @@ export default function Show({ auth, product, suppliers, canViewCost }: Props) {
                                         onChange={e => adjustForm.setData('quantity_change', e.target.value ? `-${e.target.value}` : '')}
                                         required
                                     />
-                                    <p className="text-xs text-text-muted mt-1">Currently {adjustingBatch.quantity} in stock.</p>
+                                    <p className="text-xs text-gray-500 mt-1">Currently {adjustingBatch.quantity} in stock.</p>
                                     {adjustForm.errors.quantity_change && <p className={ERROR_CLASS}>{adjustForm.errors.quantity_change}</p>}
                                 </div>
                                 <div>
@@ -359,7 +359,7 @@ export default function Show({ auth, product, suppliers, canViewCost }: Props) {
                                     {adjustForm.errors.notes && <p className={ERROR_CLASS}>{adjustForm.errors.notes}</p>}
                                 </div>
                             </div>
-                            <div className="mt-gap-lg flex justify-end gap-gap-sm">
+                            <div className="mt-6 flex justify-end gap-3">
                                 <Button type="button" variant="outline" onClick={() => setAdjustingBatch(null)}>Cancel</Button>
                                 <Button type="submit" variant="destructive" disabled={adjustForm.processing}>Submit Report</Button>
                             </div>

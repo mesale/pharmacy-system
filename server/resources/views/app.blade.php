@@ -6,6 +6,17 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+        {{-- Apply the saved theme before first paint to avoid a flash of the wrong theme. --}}
+        <script>
+            (function () {
+                try {
+                    var saved = localStorage.getItem('appearance') || 'system';
+                    var isDark = saved === 'dark' || (saved === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                    document.documentElement.classList.toggle('dark', isDark);
+                } catch (e) {}
+            })();
+        </script>
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />

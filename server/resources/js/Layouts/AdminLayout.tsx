@@ -1,161 +1,185 @@
-import React, { PropsWithChildren, useState } from 'react';
+import React, { PropsWithChildren } from 'react';
 import { Head, Link, usePage } from '@inertiajs/react';
+import { 
+    SidebarProvider, 
+    Sidebar, 
+    SidebarHeader, 
+    SidebarContent, 
+    SidebarMenu, 
+    SidebarMenuItem, 
+    SidebarMenuButton,
+    SidebarFooter,
+    SidebarInset,
+    SidebarTrigger
+} from "@/components/ui/sidebar";
+import {
+    Activity,
+    ShoppingCart,
+    Package,
+    History,
+    Users,
+    Tags,
+    Truck,
+    LogOut,
+    Menu,
+    Sun,
+    Moon,
+    Monitor
+} from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { useAppearance, type Appearance } from "@/hooks/use-appearance";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const THEME_OPTIONS: { key: Appearance; label: string; icon: typeof Sun }[] = [
+    { key: 'light', label: 'Light', icon: Sun },
+    { key: 'dark', label: 'Dark', icon: Moon },
+    { key: 'system', label: 'Auto', icon: Monitor },
+];
+
+function ThemeToggle() {
+    const { appearance, updateAppearance } = useAppearance();
+    return (
+        <div className="flex items-center rounded-md border border-border overflow-hidden">
+            {THEME_OPTIONS.map((opt) => {
+                const active = appearance === opt.key;
+                const Icon = opt.icon;
+                return (
+                    <button
+                        key={opt.key}
+                        type="button"
+                        onClick={() => updateAppearance(opt.key)}
+                        className={
+                            "flex flex-1 items-center justify-center gap-1.5 py-1.5 text-xs font-medium transition-colors " +
+                            (active
+                                ? "bg-primary text-primary-foreground"
+                                : "text-muted-foreground hover:text-foreground")
+                        }
+                    >
+                        <Icon className="h-3.5 w-3.5" />
+                        {opt.label}
+                    </button>
+                );
+            })}
+        </div>
+    );
+}
 
 export default function AdminLayout({ children }: PropsWithChildren) {
     const user = usePage().props.auth.user;
     const { url } = usePage();
     const isAdmin = user.roles && user.roles.includes('admin');
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const navItems = [
+        { name: 'Dashboard', icon: Activity, href: route('dashboard'), active: url.startsWith('/dashboard') },
+        { name: 'Checkout', icon: ShoppingCart, href: route('pos.index'), active: url.startsWith('/pos') },
+        { name: 'Sales', icon: Activity, href: route('reports.index'), active: url.startsWith('/reports'), adminOnly: true },
+        { name: 'Stock', icon: Package, href: route('products.index'), active: url.startsWith('/products') },
+        { name: 'Categories', icon: Tags, href: route('categories.index'), active: url.startsWith('/categories'), adminOnly: true },
+        { name: 'Suppliers', icon: Truck, href: route('suppliers.index'), active: url.startsWith('/suppliers'), adminOnly: true },
+        { name: 'Users', icon: Users, href: route('users.index'), active: url.startsWith('/users'), adminOnly: true },
+        { name: 'Audit Log', icon: History, href: route('adjustments.index'), active: url.startsWith('/adjustments'), adminOnly: true },
+    ];
 
     return (
-        <>
+        <SidebarProvider>
             <Head>
                 <link href="https://fonts.googleapis.com" rel="preconnect"/>
                 <link crossOrigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-                <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"/>
-                <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
                 <style>{`
-                    @layer base {
-                        html, body { margin: 0; padding: 0; }
-                        body { overscroll-behavior: none; }
-                        main > :first-child { margin-top: 0 !important; }
-                        main > :last-child { margin-bottom: 0 !important; }
-                    }
-                    ::-webkit-scrollbar { display: none; }
+                    body { font-family: 'Inter', sans-serif; }
                 `}</style>
             </Head>
 
-            <div className="dark bg-surface-base font-body-md text-body-md text-on-surface antialiased min-h-screen flex">
-                {isMobileMenuOpen && (
-                    <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsMobileMenuOpen(false)} />
-                )}
-                
-                <aside className={`fixed left-0 top-0 h-full w-64 bg-surface-raised border-r border-border-subtle z-50 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                    <div className="flex flex-col">
-                        <div className="h-16 px-gutter-mobile flex items-center justify-between border-b border-border-subtle bg-surface-base">
-                            <div className="flex items-center gap-gap-sm">
-                                <span className="material-symbols-outlined text-primary text-headline-sm">terminal</span>
-                                <div className="flex flex-col">
-                                    <span className="font-label-lg text-label-lg text-text-primary uppercase tracking-wider">ST. JUDE DISP</span>
-                                    <span className="font-label-sm text-label-sm text-text-muted">CLINICAL SYSTEM 4.2</span>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-gap-2xs bg-status-success-bg border border-status-success px-1.5 py-0.5">
-                                <div className="w-1.5 h-1.5 bg-status-success animate-pulse"></div>
-                                <span className="font-label-sm text-label-sm text-status-success">SYS:OK</span>
-                            </div>
+            <Sidebar>
+                <SidebarHeader className="border-b border-border p-4">
+                    <div className="flex items-center gap-2">
+                        <div className="bg-emerald-600 p-1.5 rounded-md text-white dark:bg-primary dark:text-primary-foreground">
+                            <Activity className="h-5 w-5" />
                         </div>
-                        <div className="p-gutter-mobile border-b border-border-subtle bg-surface-raised">
-                            <div className="flex items-center justify-between mb-gap-xs">
-                                <span className="font-label-sm text-label-sm text-text-muted uppercase">Active Station</span>
-                                <span className="font-label-sm text-label-sm text-primary font-bold">SECURE-NET</span>
-                            </div>
-                            <div className="flex items-center justify-between bg-surface-base border border-border-subtle p-gap-sm">
-                                <div className="flex items-center gap-gap-xs">
-                                    <span className="material-symbols-outlined text-primary text-body-md">point_of_sale</span>
-                                    <span className="font-headline-sm text-headline-sm text-text-primary">T-04 MAIN</span>
-                                </div>
-                                <span className="font-label-sm text-label-sm bg-surface-container-high text-on-surface-variant px-1 py-0.5 border border-outline-variant">DISP-BAY</span>
-                            </div>
-                        </div>
+                        <span className="font-bold text-lg tracking-tight">Pharmacy</span>
+                    </div>
+                </SidebarHeader>
 
-                        <div className="px-gutter-mobile py-gap-sm">
-                            <span className="font-label-sm text-label-sm text-text-muted uppercase tracking-wider block mb-gap-xs">Core Modules</span>
-                            <nav className="flex flex-col gap-1">
-                                <Link href={route('pos.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/pos') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-                                    <span className="material-symbols-outlined text-headline-sm">barcode_scanner</span>
-                                    <span className="font-headline-sm text-headline-sm">Dispense &amp; POS</span>
-                                </Link>
-                                <Link href={route('products.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/products') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-                                    <span className="material-symbols-outlined text-headline-sm">medication</span>
-                                    <span className="font-headline-sm text-headline-sm">FEFO Inventory</span>
-                                </Link>
-                                <Link href={route('categories.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/categories') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-                                    <span className="material-symbols-outlined text-headline-sm">category</span>
-                                    <span className="font-headline-sm text-headline-sm">Categories</span>
-                                </Link>
-                                <Link href={route('suppliers.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/suppliers') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-                                    <span className="material-symbols-outlined text-headline-sm">hub</span>
-                                    <span className="font-headline-sm text-headline-sm">Suppliers</span>
-                                </Link>
-                                
-                                {isAdmin && (
-                                    <>
-                                        <Link href={route('purchasing.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/purchasing') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-                                            <span className="material-symbols-outlined text-headline-sm">shopping_cart</span>
-                                            <span className="font-headline-sm text-headline-sm">Purchasing</span>
-                                        </Link>
-                                        <Link href={route('users.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/users') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-                                            <span className="material-symbols-outlined text-headline-sm">group</span>
-                                            <span className="font-headline-sm text-headline-sm">Staff & Users</span>
-                                        </Link>
-                                        <Link href={route('adjustments.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/adjustments') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-                                            <span className="material-symbols-outlined text-headline-sm">history</span>
-                                            <span className="font-headline-sm text-headline-sm">Audit Log</span>
-                                        </Link>
-                                        <Link href={route('reports.index')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url.startsWith('/reports') ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-                                            <span className="material-symbols-outlined text-headline-sm">query_stats</span>
-                                            <span className="font-headline-sm text-headline-sm">Financial Reports</span>
-                                        </Link>
-                                        <Link href={route('dashboard')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors ${url === '/dashboard' ? 'bg-surface-container text-primary border-l-2 border-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'}`}>
-                                            <span className="material-symbols-outlined text-headline-sm">monitoring</span>
-                                            <span className="font-headline-sm text-headline-sm">Executive Admin</span>
-                                        </Link>
-                                    </>
-                                )}
-                            </nav>
-                        </div>
-                        <div className="px-gutter-mobile pt-4">
-                            <Link href={route('reconciliation.create')} className={`flex items-center gap-gap-sm px-gap-sm py-2 transition-colors rounded ${url.startsWith('/reconciliation') ? 'bg-status-critical-bg text-status-critical font-bold' : 'bg-surface-overlay text-on-surface hover:bg-surface-container-high border border-border-subtle'}`}>
-                                <span className="material-symbols-outlined text-headline-sm">point_of_sale</span>
-                                <span className="font-headline-sm text-headline-sm">Close Shift</span>
-                            </Link>
-                        </div>
+                <SidebarContent className="px-2 py-4">
+                    <SidebarMenu>
+                        {navItems.map((item) => {
+                            if (item.adminOnly && !isAdmin) return null;
+                            return (
+                                <SidebarMenuItem key={item.name}>
+                                    <SidebarMenuButton  
+                                        isActive={item.active} 
+                                        tooltip={item.name}
+                                        render={<Link href={item.href} />}
+                                    >
+                                        <item.icon className="h-4 w-4" />
+                                        <span>{item.name}</span>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            );
+                        })}
+                    </SidebarMenu>
+                </SidebarContent>
+
+                <SidebarFooter className="border-t border-border p-4 gap-3">
+                    <div className="flex flex-col gap-1.5">
+                        <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Appearance</span>
+                        <ThemeToggle />
                     </div>
-                    <div className="p-gutter-mobile border-t border-border-subtle bg-surface-base">
-                        <Link href={route('logout')} method="post" as="button" className="w-full text-left font-label-sm text-label-sm text-status-critical hover:text-red-400">
-                            LOGOUT {user.name.toUpperCase()}
-                        </Link>
-                    </div>
-                </aside>
-                
-                <div className="flex-1 lg:ml-64 flex flex-col min-h-screen transition-all duration-300">
-                    <header className="fixed top-0 left-0 lg:left-64 right-0 h-16 bg-surface-base border-b border-border-subtle z-40 flex items-center justify-between px-gutter-mobile transition-all duration-300">
-                        <div className="flex items-center gap-gap-lg">
-                            <div className="flex items-center gap-gap-sm">
-                                <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden text-text-primary p-1 flex items-center justify-center hover:bg-surface-raised rounded-md transition-colors">
-                                    <span className="material-symbols-outlined text-headline-sm">menu</span>
-                                </button>
-                                <div className="flex flex-col">
-                                    <div className="flex items-center gap-gap-xs">
-                                        <span className="font-headline-sm text-headline-sm text-text-primary hidden sm:block">ST. JUDE CLINICAL PHARMACY</span>
-                                        <span className="font-headline-sm text-headline-sm text-text-primary sm:hidden">ST. JUDE</span>
-                                        <span className="font-label-sm text-label-sm bg-surface-overlay text-text-muted border border-border-subtle px-1.5 py-0.5">T-04</span>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="w-full justify-start h-auto p-2">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold">
+                                        {user.name.charAt(0)}
                                     </div>
-                                    <span className="font-label-sm text-label-sm text-text-muted hidden md:block">Main Inpatient Dispensary Tower</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-gap-md">
-                            <div className="flex items-center gap-gap-sm pl-gap-xs">
-                                <div className="flex flex-col text-right">
-                                    <span className="font-headline-sm text-headline-sm text-text-primary">{user.name}</span>
-                                    <div className="flex items-center justify-end gap-1">
-                                        <span className={`font-label-sm text-label-sm bg-surface-overlay px-1 font-bold border ${isAdmin ? 'text-primary border-primary' : 'text-status-warning border-status-warning'}`}>
-                                            {isAdmin ? 'ADMIN' : 'WORKER'}
-                                        </span>
+                                    <div className="flex flex-col items-start flex-1 text-sm overflow-hidden">
+                                        <span className="font-semibold truncate">{user.name}</span>
+                                        <span className="text-xs text-muted-foreground truncate">{isAdmin ? 'Administrator' : 'Worker'}</span>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </header>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
+                                <Link href={route('profile.edit')} className="cursor-pointer w-full">Profile Settings</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild className="text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer">
+                                <Link href={route('logout')} method="post" as="button" className="w-full flex items-center">
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    <span>Log out</span>
+                                </Link>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </SidebarFooter>
+            </Sidebar>
 
-                    <main className="flex-1 mt-16 px-gutter-mobile bg-surface-base">
-                        {children}
-                    </main>
-                </div>
-            </div>
-        </>
+            <SidebarInset className="flex flex-col flex-1 min-w-0 bg-background">
+                <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
+                    <SidebarTrigger />
+                    <Separator orientation="vertical" className="h-6" />
+                    <div className="flex-1 flex justify-between items-center">
+                        <div className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                            Pharmacy Operating System
+                        </div>
+                    </div>
+                </header>
+                <main className="flex-1 p-4 sm:p-6 overflow-auto">
+                    {children}
+                </main>
+            </SidebarInset>
+        </SidebarProvider>
     );
 }
-

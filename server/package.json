@@ -29,8 +29,14 @@
         "@laravel/multiplex": "^0.4.1"
     },
     "dependencies": {
+        "@base-ui/react": "^1.8.0",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
-        "tailwind-merge": "^2.5.4"
+        "cn": "^0.2.6",
+        "lucide-react": "^1.43.0",
+        "react-is": "^19.3.0",
+        "recharts": "^3.10.1",
+        "tailwind-merge": "^2.6.1",
+        "tailwindcss-animate": "^1.0.7"
     }
 }

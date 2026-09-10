@@ -41,6 +41,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/purchasing', [\App\Http\Controllers\PurchaseOrderController::class, 'index'])->name('purchasing.index');
         
         Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/day/{date}', [\App\Http\Controllers\ReportController::class, 'showDay'])->name('reports.day');
         
         Route::get('/adjustments', [\App\Http\Controllers\StockAdjustmentController::class, 'index'])->name('adjustments.index');
         

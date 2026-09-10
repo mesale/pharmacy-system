@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#101418;color:#F1F5F9;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"status-critical-bg":"#2A0A12","surface-tint":"#4fdbc8","text-primary":"#F1F5F9","on-tertiary":"#003731","surface-container-highest":"#31353a","border-strong":"#2C3946","background":"#101418","outline-variant":"#3c4947","surface-base":"#06090C","tertiary":"#3cddc7","text-secondary":"#94A3B8","surface-overlay":"#161D24","secondary-container":"#007068","on-primary-container":"#00423b","secondary-fixed":"#9cf2e8","text-muted":"#64748B","primary-container":"#14b8a6","on-secondary-fixed":"#00201d","inverse-primary":"#006b5f","primary":"#4fdbc8","outline":"#859490","on-error":"#690005","secondary-fixed-dim":"#80d5cb","on-primary":"#003731","error-container":"#93000a","on-tertiary-fixed":"#00201c","status-critical":"#E11D48","inverse-surface":"#e0e3e8","error":"#ffb4ab","on-surface-variant":"#bbcac6","badge-controlled":"#BE123C","on-primary-fixed":"#00201c","on-secondary-fixed-variant":"#00504a","surface-container-lowest":"#0b0f13","on-primary-fixed-variant":"#005048","tertiary-fixed-dim":"#3cddc7","status-success":"#16A34A","on-error-container":"#ffdad6","on-tertiary-container":"#00423a","inverse-on-surface":"#2d3135","surface-variant":"#31353a","surface-container-low":"#181c20","surface-raised":"#0E1318","status-warning-bg":"#2B1A04","on-surface":"#e0e3e8","badge-controlled-text":"#FFE4E6","surface-bright":"#363a3e","secondary":"#80d5cb","surface-dim":"#101418","on-background":"#e0e3e8","status-warning":"#F59E0B","surface-container":"#1c2024","status-success-bg":"#062312","on-secondary":"#003733","primary-fixed-dim":"#4fdbc8","on-secondary-container":"#9af0e5","tertiary-fixed":"#62fae3","border-subtle":"#1E2730","surface":"#101418","on-tertiary-fixed-variant":"#005047","surface-container-high":"#262a2f","primary-fixed":"#71f8e4","tertiary-container":"#00b8a5"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"gap-md":"0.75rem","gap-lg":"1rem","row-dense":"2.25rem","row-standard":"3rem","gap-2xl":"2rem","margin-mobile":"0.75rem","gutter-mobile":"0.75rem","gap-sm":"0.5rem","gap-xl":"1.5rem","gap-xs":"0.25rem","gap-2xs":"0.125rem"},"fontFamily":{"headline-md":["Space Grotesk"],"headline-sm":["Space Grotesk"],"data-tabular-lg":["Space Grotesk"],"body-sm":["Geist"],"body-md":["Geist"],"data-tabular-md":["Geist"],"body-lg":["Geist"],"headline-lg-mobile":["Space Grotesk"],"label-sm":["Geist"],"label-lg":["Space Grotesk"],"headline-lg":["Space Grotesk"],"label-md":["Geist"]},"fontSize":{"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-sm":["15px",{"lineHeight":"20px","letterSpacing":"0em","fontWeight":"600"}],"data-tabular-lg":["20px",{"lineHeight":"24px","letterSpacing":"-0.03em","fontWeight":"700"}],"body-sm":["11px",{"lineHeight":"16px","letterSpacing":"0.02em","fontWeight":"400"}],"body-md":["13px",{"lineHeight":"18px","letterSpacing":"0.01em","fontWeight":"400"}],"data-tabular-md":["13px",{"lineHeight":"16px","letterSpacing":"-0.01em","fontWeight":"500"}],"body-lg":["15px",{"lineHeight":"22px","letterSpacing":"0em","fontWeight":"400"}],"headline-lg-mobile":["20px",{"lineHeight":"26px","letterSpacing":"-0.01em","fontWeight":"700"}],"label-sm":["9px",{"lineHeight":"12px","letterSpacing":"0.06em","fontWeight":"600"}],"label-lg":["13px",{"lineHeight":"16px","letterSpacing":"0.03em","fontWeight":"600"}],"headline-lg":["24px",{"lineHeight":"30px","letterSpacing":"-0.02em","fontWeight":"700"}],"label-md":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"500"}]}}}};</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-text-primary flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="h-16 px-gutter-mobile flex items-center justify-between gap-gap-xs"><div class="flex items-center gap-gap-xs min-w-0 flex-1"><img alt="CuraStock Pharmacy Logo" class="h-8 w-auto object-contain flex-shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1Usac97C9lmsW7S4BJlDR_1V2Ja4Q_K3sF3y_cQylpGHqJoai1cx6rzU-uzA5YFGnVqMTxQehoGrTzaZDRXKdPHRClMjrK73IaPPmihwq83xOwu2gArs1GoW3Q0G8loHokjpeKjC5hi1RBW5InuJxkXLQdZXsjpZEAhZML9bEVmejTjmGxny8_57gTLlvngI7g--WS6H225j9ktImqvzCol0A3cge7YGPyInlxmv5eyJAB3TN3-yl5M"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-gap-xs"><span class="font-headline-sm text-headline-sm text-text-primary truncate">Pos / Scan</span></div><span class="font-label-sm text-label-sm text-text-muted truncate uppercase tracking-wider">Main Dispensary · St. Jude Medical</span></div></div><div class="flex items-center gap-gap-sm flex-shrink-0"><div class="hidden xs:flex sm:flex items-center gap-gap-2xs px-gap-xs py-gap-2xs bg-status-success-bg text-status-success rounded-DEFAULT"><span class="material-symbols-outlined text-[14px]">check_circle</span><span class="font-label-sm text-label-sm uppercase font-semibold">Sync Ready</span></div><div class="flex xs:hidden sm:hidden items-center justify-center w-6 h-6 bg-status-success-bg text-status-success rounded-DEFAULT" title="Offline sync ready"><span class="material-symbols-outlined text-[14px]">check_circle</span></div><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcLgCB6qsd4s6ltFoMHbiIPQ5Z-YY7XtBrlPad04gudL6XgomtIpq0kTOTcaJ-evXeyfcokM1v9iyTDQ1k3BQLO7Q6XS8o8G6ytw10LP-UcnFRnrfY4Spf3KyeigSradWlYR0qJaJuVlditRbpDA1h7tClMI3Y-SCllL2k921HGHMUidyqls7lnA3T71iJ4RXqWf4M6AmouufeWLsVDSz_F8lpJOwGD4wca8swxu2467o_g-Dy1g"/></div></div></header><main class="flex flex-col relative w-full pt-16 pb-24 px-gutter-mobile bg-surface flex-1"><div class="flex flex-col w-full gap-gap-md select-none">
+<!-- Status & Mode Ticker -->
+<div class="flex items-center justify-between bg-surface-container px-gutter-mobile py-gap-xs">
+<div class="flex items-center gap-gap-xs min-w-0">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse flex-shrink-0"></span>
+<span class="font-label-md text-label-md text-text-primary tracking-wide uppercase truncate">Dispense Terminal #04</span>
+<span class="font-label-sm text-label-sm text-text-muted">· Ready</span>
+</div>
+<div class="flex items-center gap-gap-xs flex-shrink-0">
+<button class="flex items-center gap-gap-2xs px-gap-xs py-gap-2xs bg-surface-raised text-primary transition-colors active:bg-primary active:text-surface-base" id="beep-toggle-btn">
+<span class="material-symbols-outlined text-[14px]">volume_up</span>
+<span class="font-label-sm text-label-sm font-semibold tracking-wider uppercase">Beep: ON</span>
+</button>
+</div>
+</div>
+<!-- Camera Scanner Viewfinder Trigger Card -->
+<div class="relative bg-surface-base overflow-hidden p-gap-md flex flex-col justify-between min-h-[170px]">
+<!-- High-tech backdrop grid lines -->
+<div class="absolute inset-0 opacity-15 pointer-events-none flex flex-col justify-between py-2">
+<div class="w-full h-px bg-primary"></div>
+<div class="w-full h-px bg-primary"></div>
+<div class="w-full h-px bg-primary"></div>
+<div class="w-full h-px bg-primary"></div>
+</div>
+<!-- Scanner Reticle Graphic Area -->
+<div class="relative z-10 flex items-center justify-center py-gap-sm">
+<div class="relative w-56 h-20 bg-surface-raised/60 flex items-center justify-center">
+<!-- Reticle Corners -->
+<span class="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-primary"></span>
+<span class="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-primary"></span>
+<span class="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-primary"></span>
+<span class="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-primary"></span>
+<!-- Laser Scanline Animation -->
+<div class="absolute inset-x-2 h-0.5 bg-primary opacity-80 animate-[bounce_1.8s_infinite] shadow-[0_0_8px_rgba(79,219,200,0.8)]"></div>
+<div class="flex flex-col items-center gap-gap-2xs text-center pointer-events-none">
+<span class="material-symbols-outlined text-primary text-[26px]">barcode_reader</span>
+<span class="font-headline-sm text-headline-sm text-text-primary tracking-tight">Center EAN-13 / DataMatrix</span>
+</div>
+</div>
+</div>
+<!-- Scan Bar Controls & Torch -->
+<div class="relative z-10 flex items-center justify-between pt-gap-xs">
+<div class="flex items-center gap-gap-xs text-text-secondary">
+<span class="material-symbols-outlined text-[16px] text-primary">sensors</span>
+<span class="font-label-sm text-label-sm tracking-wider uppercase">Auto-Focus Continuous</span>
+</div>
+<div class="flex items-center gap-gap-xs">
+<button class="flex items-center gap-gap-2xs px-gap-sm py-gap-2xs bg-surface-raised text-text-primary transition-colors active:bg-surface-bright" id="torch-toggle-btn">
+<span class="material-symbols-outlined text-[16px] text-status-warning" id="torch-icon">flashlight_on</span>
+<span class="font-label-sm text-label-sm uppercase font-semibold">Torch</span>
+</button>
+<button class="flex items-center gap-gap-2xs px-gap-sm py-gap-2xs bg-primary text-surface-base font-headline-sm text-[12px] uppercase active:bg-tertiary" id="simulate-scan-btn">
+<span class="material-symbols-outlined text-[15px]">add_a_photo</span>
+<span>Simulate Scan</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Search Input Bar & Quick Access Mode -->
+<div class="flex flex-col gap-gap-xs">
+<div class="flex items-center bg-surface-raised px-gap-sm h-11">
+<span class="material-symbols-outlined text-text-muted text-[20px] mr-gap-xs">search</span>
+<input class="bg-transparent font-body-md text-body-md text-text-primary placeholder:text-text-muted flex-1 outline-none min-w-0" id="med-search-input" placeholder="Type drug name, DIN, or shelf loc (e.g. A3-12)..." type="text"/>
+<button class="text-text-muted hover:text-text-primary p-1" id="clear-search-btn">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<!-- Category Filters Scrollable Track -->
+<div class="flex items-center gap-gap-xs overflow-x-auto py-gap-2xs no-scrollbar">
+<button class="filter-pill flex-shrink-0 px-gap-sm py-1 bg-primary text-surface-base font-label-md text-label-md font-semibold uppercase">
+        All
+      </button>
+<button class="filter-pill flex-shrink-0 px-gap-sm py-1 bg-surface-raised text-text-secondary hover:text-text-primary font-label-md text-label-md font-semibold uppercase">
+        Antibiotics
+      </button>
+<button class="filter-pill flex-shrink-0 px-gap-sm py-1 bg-surface-raised text-text-secondary hover:text-text-primary font-label-md text-label-md font-semibold uppercase">
+        Pain Relief
+      </button>
+<button class="filter-pill flex-shrink-0 px-gap-sm py-1 bg-surface-raised text-text-secondary hover:text-text-primary font-label-md text-label-md font-semibold uppercase">
+        Chronic Care
+      </button>
+<button class="filter-pill flex-shrink-0 px-gap-sm py-1 bg-surface-raised text-status-critical font-label-md text-label-md font-semibold uppercase">
+        Controlled
+      </button>
+</div>
+</div>
+<!-- Fast Action FEFO Banner -->
+<div class="flex items-center justify-between bg-surface-container px-gap-sm py-gap-xs">
+<div class="flex items-center gap-gap-xs min-w-0">
+<span class="material-symbols-outlined text-tertiary text-[18px] flex-shrink-0">verified</span>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-[12px] text-text-primary tracking-wide leading-tight truncate">Auto-FEFO Algorithm Active</span>
+<span class="font-label-sm text-label-sm text-text-muted truncate">Dispensing soonest expiring batches first</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider px-1 bg-surface-base flex-shrink-0">STRICT</span>
+</div>
+<!-- Section Header -->
+<div class="flex items-center justify-between pt-gap-xs">
+<div class="flex items-center gap-gap-xs">
+<span class="font-headline-sm text-headline-sm text-text-primary tracking-tight">Quick Dispense / High Frequency</span>
+<span class="font-label-sm text-label-sm text-text-muted px-1.5 py-0.5 bg-surface-raised font-bold">5 READY</span>
+</div>
+<button class="font-label-sm text-label-sm text-primary hover:underline uppercase tracking-wider">Audit Log</button>
+</div>
+<!-- Inventory Items List -->
+<div class="flex flex-col gap-gap-xs" id="inventory-list">
+<!-- Item 1: Amoxicillin 500mg -->
+<div class="flex items-stretch bg-surface-raised transition-all hover:bg-surface-container">
+<!-- Status Strip Indicator: Amber for FEFO Expiry Warning -->
+<div class="w-1 bg-status-warning flex-shrink-0"></div>
+<div class="flex flex-col justify-between p-gap-sm flex-1 min-w-0">
+<div class="flex items-start justify-between gap-gap-xs">
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-text-primary truncate">Amoxicillin 500mg</span>
+<span class="font-body-sm text-body-sm text-text-muted">Capsules · Blister Pack (10x10)</span>
+</div>
+<span class="font-data-tabular-lg text-data-tabular-lg text-text-primary flex-shrink-0">$14.50</span>
+</div>
+<div class="flex items-center justify-between gap-gap-xs pt-gap-xs mt-gap-2xs">
+<div class="flex items-center gap-gap-xs flex-wrap">
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-status-warning-bg text-status-warning font-semibold uppercase tracking-wider">
+              FEFO: EXP 18D (LOT #AMX-910)
+            </span>
+<span class="font-label-sm text-label-sm text-text-secondary">Stock: 142</span>
+</div>
+<button class="quick-add-btn flex items-center justify-center gap-gap-2xs px-gap-sm h-8 bg-primary text-surface-base font-headline-sm text-[12px] uppercase active:scale-95 transition-transform flex-shrink-0" data-name="Amoxicillin 500mg" data-price="14.50">
+<span class="material-symbols-outlined text-[16px]">add</span>
+<span>Dispense</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 2: Metformin HCl 500mg -->
+<div class="flex items-stretch bg-surface-raised transition-all hover:bg-surface-container">
+<!-- Status Strip: Green for Safe Shelf Life -->
+<div class="w-1 bg-status-success flex-shrink-0"></div>
+<div class="flex flex-col justify-between p-gap-sm flex-1 min-w-0">
+<div class="flex items-start justify-between gap-gap-xs">
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-text-primary truncate">Metformin HCl 500mg</span>
+<span class="font-body-sm text-body-sm text-text-muted">Oral Tablets · Bottle (500ct)</span>
+</div>
+<span class="font-data-tabular-lg text-data-tabular-lg text-text-primary flex-shrink-0">$8.20</span>
+</div>
+<div class="flex items-center justify-between gap-gap-xs pt-gap-xs mt-gap-2xs">
+<div class="flex items-center gap-gap-xs flex-wrap">
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-status-success-bg text-status-success font-semibold uppercase tracking-wider">
+              Safe: 14 MOS (LOT #MET-441)
+            </span>
+<span class="font-label-sm text-label-sm text-text-secondary">Stock: 310</span>
+</div>
+<button class="quick-add-btn flex items-center justify-center gap-gap-2xs px-gap-sm h-8 bg-primary text-surface-base font-headline-sm text-[12px] uppercase active:scale-95 transition-transform flex-shrink-0" data-name="Metformin HCl 500mg" data-price="8.20">
+<span class="material-symbols-outlined text-[16px]">add</span>
+<span>Dispense</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 3: Oxycodone 10mg (Controlled Substance) -->
+<div class="flex items-stretch bg-surface-raised transition-all hover:bg-surface-container">
+<!-- Status Strip: Crimson for Controlled -->
+<div class="w-1 bg-badge-controlled flex-shrink-0"></div>
+<div class="flex flex-col justify-between p-gap-sm flex-1 min-w-0">
+<div class="flex items-start justify-between gap-gap-xs">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-gap-xs truncate">
+<span class="font-headline-sm text-headline-sm text-text-primary truncate">Oxycodone 10mg</span>
+<span class="material-symbols-outlined text-status-critical text-[16px] flex-shrink-0" title="Schedule II Narcotic">lock</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-muted">Schedule II Narcotic · Safe Vault 02</span>
+</div>
+<span class="font-data-tabular-lg text-data-tabular-lg text-text-primary flex-shrink-0">$42.00</span>
+</div>
+<div class="flex items-center justify-between gap-gap-xs pt-gap-xs mt-gap-2xs">
+<div class="flex items-center gap-gap-xs flex-wrap">
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-status-critical-bg text-badge-controlled-text font-bold uppercase tracking-wider">
+              Controlled · Dual-Signoff
+            </span>
+<span class="font-label-sm text-label-sm text-text-secondary">Stock: 18</span>
+</div>
+<button class="controlled-add-btn flex items-center justify-center gap-gap-2xs px-gap-sm h-8 bg-status-critical text-text-primary font-headline-sm text-[12px] uppercase active:scale-95 transition-transform flex-shrink-0" data-name="Oxycodone 10mg" data-price="42.00">
+<span class="material-symbols-outlined text-[15px]">key</span>
+<span>Unlock</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 4: Paracetamol Extra 500/65mg -->
+<div class="flex items-stretch bg-surface-raised transition-all hover:bg-surface-container">
+<!-- Status Strip: Success -->
+<div class="w-1 bg-status-success flex-shrink-0"></div>
+<div class="flex flex-col justify-between p-gap-sm flex-1 min-w-0">
+<div class="flex items-start justify-between gap-gap-xs">
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-text-primary truncate">Paracetamol Extra 500/65mg</span>
+<span class="font-body-sm text-body-sm text-text-muted">Film-coated Tab + Caffeine · OTC</span>
+</div>
+<span class="font-data-tabular-lg text-data-tabular-lg text-text-primary flex-shrink-0">$5.00</span>
+</div>
+<div class="flex items-center justify-between gap-gap-xs pt-gap-xs mt-gap-2xs">
+<div class="flex items-center gap-gap-xs flex-wrap">
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-status-success-bg text-status-success font-semibold uppercase tracking-wider">
+              Safe (22 MOS)
+            </span>
+<span class="font-label-sm text-label-sm text-text-secondary">Stock: 88</span>
+</div>
+<button class="quick-add-btn flex items-center justify-center gap-gap-2xs px-gap-sm h-8 bg-primary text-surface-base font-headline-sm text-[12px] uppercase active:scale-95 transition-transform flex-shrink-0" data-name="Paracetamol Extra 500/65mg" data-price="5.00">
+<span class="material-symbols-outlined text-[16px]">add</span>
+<span>Dispense</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 5: Atorvastatin 20mg -->
+<div class="flex items-stretch bg-surface-raised transition-all hover:bg-surface-container">
+<!-- Status Strip: Warning Expiry Soon -->
+<div class="w-1 bg-status-warning flex-shrink-0"></div>
+<div class="flex flex-col justify-between p-gap-sm flex-1 min-w-0">
+<div class="flex items-start justify-between gap-gap-xs">
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-text-primary truncate">Atorvastatin 20mg</span>
+<span class="font-body-sm text-body-sm text-text-muted">Lipid-Lowering · Strips (3x10)</span>
+</div>
+<span class="font-data-tabular-lg text-data-tabular-lg text-text-primary flex-shrink-0">$19.80</span>
+</div>
+<div class="flex items-center justify-between gap-gap-xs pt-gap-xs mt-gap-2xs">
+<div class="flex items-center gap-gap-xs flex-wrap">
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 bg-status-warning-bg text-status-warning font-semibold uppercase tracking-wider">
+              FEFO: EXP 45D (LOT #ATV-120)
+            </span>
+<span class="font-label-sm text-label-sm text-text-secondary">Stock: 64</span>
+</div>
+<button class="quick-add-btn flex items-center justify-center gap-gap-2xs px-gap-sm h-8 bg-primary text-surface-base font-headline-sm text-[12px] uppercase active:scale-95 transition-transform flex-shrink-0" data-name="Atorvastatin 20mg" data-price="19.80">
+<span class="material-symbols-outlined text-[16px]">add</span>
+<span>Dispense</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Persistent Floating Checkout Bar -->
+<div class="sticky bottom-1 z-30 flex items-stretch bg-surface-overlay shadow-[0_4px_20px_rgba(0,0,0,0.8)] mt-gap-xs">
+<!-- Accent Indicator Edge -->
+<div class="w-1.5 bg-primary flex-shrink-0"></div>
+<div class="flex items-center justify-between p-gap-sm flex-1 min-w-0 gap-gap-sm">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-gap-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">shopping_basket</span>
+<span class="font-headline-sm text-headline-sm text-text-primary truncate" id="cart-item-count">Current Cart: 3 Items</span>
+</div>
+<span class="font-label-md text-label-md text-text-secondary" id="cart-subtotal">Total Subtotal: <strong class="text-primary font-bold">$37.70</strong> (Tax Excl.)</span>
+</div>
+<button class="flex items-center gap-gap-2xs px-gap-md h-10 bg-primary text-surface-base font-headline-sm text-[13px] uppercase tracking-wider active:bg-tertiary flex-shrink-0 transition-colors" id="view-cart-btn">
+<span>View Cart</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Pharmacist Dual-Signoff Modal Dialog (Hidden by Default) -->
+<div class="fixed inset-0 z-50 bg-surface-base/80 backdrop-blur-sm hidden items-center justify-center p-gutter-mobile" id="dual-signoff-modal">
+<div class="w-full max-w-sm bg-surface-overlay p-gap-md flex flex-col gap-gap-md shadow-2xl">
+<div class="flex items-center justify-between pb-gap-xs">
+<div class="flex items-center gap-gap-xs text-status-critical">
+<span class="material-symbols-outlined text-[24px]">verified_user</span>
+<span class="font-headline-sm text-headline-sm uppercase tracking-wide">Controlled Sign-Off</span>
+</div>
+<button class="text-text-muted hover:text-text-primary p-1" id="close-modal-btn">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="flex flex-col gap-gap-2xs bg-surface-raised p-gap-sm">
+<span class="font-headline-sm text-headline-sm text-text-primary">Oxycodone 10mg</span>
+<span class="font-body-sm text-body-sm text-text-secondary">Requires Secondary Supervising Pharmacist PIN / RFID Scan</span>
+</div>
+<div class="flex flex-col gap-gap-xs">
+<label class="font-label-sm text-label-sm text-text-muted uppercase">Supervising Pharmacist PIN</label>
+<input class="h-10 bg-surface-base text-center font-data-tabular-lg text-data-tabular-lg text-primary tracking-widest outline-none px-gap-sm focus:bg-surface-raised" id="supervisor-pin" maxlength="6" placeholder="••••••" type="password"/>
+</div>
+<div class="flex items-center gap-gap-xs pt-gap-xs">
+<button class="flex-1 h-10 bg-surface-raised text-text-secondary font-headline-sm text-[12px] uppercase" id="cancel-signoff-btn">
+          Cancel
+        </button>
+<button class="flex-1 h-10 bg-status-critical text-text-primary font-headline-sm text-[12px] uppercase" id="confirm-signoff-btn">
+          Authorize
+        </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    let cartCount = 3;
+    let cartTotal = 37.70;
+    let audioBeepEnabled = true;
+    let torchEnabled = false;
+
+    // Web Audio Synthesizer for high-pitch medical terminal beep
+    const playScanBeep = (freq = 1800, duration = 0.08) => {
+      if (!audioBeepEnabled) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {
+        // Silent catch for browser audio permissions
+      }
+    };
+
+    const updateCartDisplay = () => {
+      const countEl = document.getElementById('cart-item-count');
+      const totalEl = document.getElementById('cart-subtotal');
+      if (countEl) countEl.innerText = `Current Cart: ${cartCount} Items`;
+      if (totalEl) totalEl.innerHTML = `Total Subtotal: <strong class="text-primary font-bold">$${cartTotal.toFixed(2)}</strong> (Tax Excl.)`;
+    };
+
+    // Quick Add Handlers
+    document.querySelectorAll('.quick-add-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const price = parseFloat(btn.getAttribute('data-price') || '0');
+        cartCount += 1;
+        cartTotal += price;
+        playScanBeep(2100, 0.06);
+        updateCartDisplay();
+
+        // Tactile button bounce feedback
+        btn.classList.add('bg-status-success');
+        setTimeout(() => {
+          btn.classList.remove('bg-status-success');
+        }, 300);
+      });
+    });
+
+    // Controlled Substance Modal Logic
+    const modal = document.getElementById('dual-signoff-modal');
+    const openControlledBtns = document.querySelectorAll('.controlled-add-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const cancelSignoffBtn = document.getElementById('cancel-signoff-btn');
+    const confirmSignoffBtn = document.getElementById('confirm-signoff-btn');
+    const supervisorPinInput = document.getElementById('supervisor-pin');
+
+    const openModal = () => {
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (supervisorPinInput) {
+          supervisorPinInput.value = '';
+          supervisorPinInput.focus();
+        }
+      }
+    };
+
+    const closeModal = () => {
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    };
+
+    openControlledBtns.forEach(btn => btn.addEventListener('click', openModal));
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+    if (cancelSignoffBtn) cancelSignoffBtn.addEventListener('click', closeModal);
+
+    if (confirmSignoffBtn) {
+      confirmSignoffBtn.addEventListener('click', () => {
+        cartCount += 1;
+        cartTotal += 42.00;
+        playScanBeep(1200, 0.15); // Deeper dual-frequency confirmation
+        updateCartDisplay();
+        closeModal();
+      });
+    }
+
+    // Beep Toggle
+    const beepBtn = document.getElementById('beep-toggle-btn');
+    if (beepBtn) {
+      beepBtn.addEventListener('click', () => {
+        audioBeepEnabled = !audioBeepEnabled;
+        beepBtn.querySelector('span:last-child').innerText = `Beep: ${audioBeepEnabled ? 'ON' : 'OFF'}`;
+        beepBtn.querySelector('.material-symbols-outlined').innerText = audioBeepEnabled ? 'volume_up' : 'volume_off';
+      });
+    }
+
+    // Torch Toggle
+    const torchBtn = document.getElementById('torch-toggle-btn');
+    const torchIcon = document.getElementById('torch-icon');
+    if (torchBtn && torchIcon) {
+      torchBtn.addEventListener('click', () => {
+        torchEnabled = !torchEnabled;
+        if (torchEnabled) {
+          torchBtn.classList.add('bg-status-warning-bg', 'text-status-warning');
+          torchIcon.innerText = 'flash_on';
+        } else {
+          torchBtn.classList.remove('bg-status-warning-bg', 'text-status-warning');
+          torchIcon.innerText = 'flashlight_on';
+        }
+      });
+    }
+
+    // Simulate Scan button
+    const simulateScanBtn = document.getElementById('simulate-scan-btn');
+    if (simulateScanBtn) {
+      simulateScanBtn.addEventListener('click', () => {
+        playScanBeep(2400, 0.09);
+        cartCount += 1;
+        cartTotal += 14.50; // default simulate Amoxicillin
+        updateCartDisplay();
+      });
+    }
+
+    // Category Filter Pills Active Style
+    const pills = document.querySelectorAll('.filter-pill');
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => {
+          p.classList.remove('bg-primary', 'text-surface-base');
+          p.classList.add('bg-surface-raised', 'text-text-secondary');
+        });
+        pill.classList.remove('bg-surface-raised', 'text-text-secondary');
+        pill.classList.add('bg-primary', 'text-surface-base');
+      });
+    });
+
+    // Clear Search Field
+    const searchInput = document.getElementById('med-search-input');
+    const clearBtn = document.getElementById('clear-search-btn');
+    if (clearBtn && searchInput) {
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        searchInput.focus();
+      });
+    }
+
+    // View Cart Tap Trigger
+    const viewCartBtn = document.getElementById('view-cart-btn');
+    if (viewCartBtn) {
+      viewCartBtn.addEventListener('click', () => {
+        const cartNavLink = document.querySelector('nav a[data-path="cart"]');
+        if (cartNavLink) {
+          cartNavLink.click();
+        } else {
+          playScanBeep(1600, 0.05);
+        }
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.5)]" data-active-classes="text-primary"><div class="flex justify-between items-center h-16 px-gutter-mobile"><a class="flex flex-col items-center justify-center min-w-[56px] h-12 text-text-muted hover:text-text-primary transition-colors" data-path="pos-scan" href="#"><span class="material-symbols-outlined text-[22px]">barcode_scanner</span><span class="font-label-sm text-label-sm tracking-tight mt-0.5">POS/Scan</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-12 text-text-muted hover:text-text-primary transition-colors" data-path="inventory" href="#"><span class="material-symbols-outlined text-[22px]">medication</span><span class="font-label-sm text-label-sm tracking-tight mt-0.5">Inventory</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-12 text-text-muted hover:text-text-primary transition-colors relative" data-path="cart" href="#"><span class="material-symbols-outlined text-[22px]">shopping_cart</span><span class="absolute top-1 right-2.5 bg-primary text-surface-base font-headline-sm text-[10px] leading-tight px-1 rounded-DEFAULT font-bold">3</span><span class="font-label-sm text-label-sm tracking-tight mt-0.5">Cart</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-12 text-text-muted hover:text-text-primary transition-colors" data-path="shift-flags" href="#"><span class="material-symbols-outlined text-[22px]">assignment</span><span class="font-label-sm text-label-sm tracking-tight mt-0.5">Shift&amp;Flags</span></a><a class="flex flex-col items-center justify-center min-w-[56px] h-12 text-text-muted hover:text-text-primary transition-colors" data-path="admin" href="#"><span class="material-symbols-outlined text-[22px]">query_stats</span><span class="font-label-sm text-label-sm tracking-tight mt-0.5">Admin</span></a></div></nav></body></html>

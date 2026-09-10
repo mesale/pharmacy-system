@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Package, Plus, X, Search, Filter, Save, AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface Product {
     id: number;
@@ -62,195 +70,209 @@ export default function Index({ auth, products, categories }: Props) {
         });
     };
 
-    const isAdmin = auth.user?.roles?.includes('admin');
+    const currency = (val: string | number) => {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(val));
+    };
 
     return (
         <AdminLayout>
-            <Head title="Products" />
+            <Head title="Inventory Stock" />
 
-            <div className="py-6">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-transparent">
-
-                        <div className="flex flex-wrap justify-between items-center mb-gap-md gap-4">
-                            <form onSubmit={handleSearch} className="flex items-center gap-gap-sm">
-                                <div className="relative">
-                                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm">search</span>
-                                    <input
-                                        type="text"
-                                        placeholder="Search products..."
-                                        className="bg-surface-overlay border border-border-strong text-text-primary placeholder:text-text-muted focus:border-primary focus:ring-1 focus:ring-primary text-sm py-1.5 pl-9 pr-3"
-                                        value={search}
-                                        onChange={e => setSearch(e.target.value)}
-                                    />
-                                </div>
-                                <select
-                                    className="bg-surface-overlay border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary text-sm py-1.5 pl-3 pr-8"
-                                    value={categoryFilter}
-                                    onChange={e => setCategoryFilter(e.target.value)}
-                                >
-                                    <option value="">All Categories</option>
-                                    {categories.map(c => (
-                                        <option key={c.id} value={c.id}>{c.name}</option>
-                                    ))}
-                                </select>
-                                <button type="submit" className="bg-surface-overlay border border-border-strong text-text-secondary hover:text-primary hover:border-primary transition-colors text-sm font-bold uppercase tracking-wider px-3 py-1.5 flex items-center gap-1">
-                                    <span className="material-symbols-outlined text-sm">filter_alt</span> Filter
-                                </button>
-                            </form>
-                            {isAdmin && (
-                                <button onClick={() => setIsCreating(!isCreating)} className={`font-bold uppercase tracking-wider text-sm px-4 py-2 flex items-center gap-1 transition-colors border ${isCreating ? 'bg-surface-overlay text-text-secondary border-border-strong hover:text-primary' : 'bg-primary text-on-primary border-primary hover:bg-primary-hover'}`}>
-                                    <span className="material-symbols-outlined text-sm">{isCreating ? 'close' : 'add'}</span> {isCreating ? 'Cancel' : 'Add Product'}
-                                </button>
+            <div className="flex flex-col gap-6 w-full pb-12">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-6">
+                    <div>
+                        <h2 className="text-3xl font-bold tracking-tight text-gray-900">Inventory Stock</h2>
+                        <p className="text-muted-foreground mt-1">Manage medicines, pricing, and stock levels.</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button 
+                            variant={isCreating ? "outline" : "default"} 
+                            onClick={() => setIsCreating(!isCreating)}
+                        >
+                            {isCreating ? (
+                                <><X className="mr-2 h-4 w-4" /> Cancel</>
+                            ) : (
+                                <><Plus className="mr-2 h-4 w-4" /> Add Product</>
                             )}
-                        </div>
-
-                        {isCreating && (
-                            <form onSubmit={submitCreate} className="mb-gap-lg p-gap-md bg-surface-overlay border border-primary">
-                                <h4 className="text-md font-bold text-text-primary uppercase tracking-wider mb-gap-md">New Product Entry</h4>
-                                <div className="grid grid-cols-1 gap-gap-md sm:grid-cols-3 mb-gap-md">
-                                    <div>
-                                        <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Product Name *</label>
-                                        <input type="text" className="block w-full bg-surface-base border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm" value={data.name} onChange={e => setData('name', e.target.value)} required />
-                                        {errors.name && <p className="text-status-critical text-xs mt-1 font-bold">{errors.name}</p>}
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Category</label>
-                                        <select className="block w-full bg-surface-base border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm" value={data.category_id} onChange={e => setData('category_id', e.target.value)}>
-                                            <option value="">No Category</option>
-                                            {categories.map(c => (
-                                                <option key={c.id} value={c.id}>{c.name}</option>
-                                            ))}
-                                        </select>
-                                        {errors.category_id && <p className="text-status-critical text-xs mt-1 font-bold">{errors.category_id}</p>}
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Barcode</label>
-                                        <input type="text" className="block w-full bg-surface-base border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm" value={data.barcode} onChange={e => setData('barcode', e.target.value)} />
-                                        {errors.barcode && <p className="text-status-critical text-xs mt-1 font-bold">{errors.barcode}</p>}
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Selling Price *</label>
-                                        <input type="number" step="0.01" className="block w-full bg-surface-base border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm" value={data.selling_price} onChange={e => setData('selling_price', e.target.value)} required />
-                                        {errors.selling_price && <p className="text-status-critical text-xs mt-1 font-bold">{errors.selling_price}</p>}
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Unit</label>
-                                        <input type="text" className="block w-full bg-surface-base border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm" value={data.unit} onChange={e => setData('unit', e.target.value)} placeholder="e.g. Tablets, Box, Bottle" />
-                                        {errors.unit && <p className="text-status-critical text-xs mt-1 font-bold">{errors.unit}</p>}
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-1">Reorder Level</label>
-                                        <input type="number" className="block w-full bg-surface-base border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm" value={data.reorder_level} onChange={e => setData('reorder_level', e.target.value)} />
-                                        {errors.reorder_level && <p className="text-status-critical text-xs mt-1 font-bold">{errors.reorder_level}</p>}
-                                    </div>
-                                </div>
-                                <div className="flex gap-gap-md mb-gap-lg border-t border-border-strong pt-gap-md">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" className="bg-surface-base border-border-strong text-primary focus:ring-primary" checked={data.requires_prescription} onChange={e => setData('requires_prescription', e.target.checked)} />
-                                        <span className="text-xs font-bold text-text-primary uppercase tracking-wider">Requires Prescription</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" className="bg-surface-base border-border-strong text-primary focus:ring-primary" checked={data.is_controlled} onChange={e => setData('is_controlled', e.target.checked)} />
-                                        <span className="text-xs font-bold text-text-primary uppercase tracking-wider">Controlled Substance</span>
-                                    </label>
-                                </div>
-                                <div className="flex justify-end gap-gap-sm">
-                                    <button type="button" onClick={() => setIsCreating(false)} className="bg-surface-base text-text-secondary border border-border-strong hover:text-primary transition-colors font-bold uppercase tracking-wider text-sm px-6 py-2">
-                                        Cancel
-                                    </button>
-                                    <button type="submit" disabled={processing} className="bg-primary text-on-primary hover:bg-primary-hover transition-colors font-bold uppercase tracking-wider text-sm px-6 py-2 flex items-center gap-1">
-                                        <span className="material-symbols-outlined text-sm">save</span> Create Product
-                                    </button>
-                                </div>
-                            </form>
-                        )}
-
-                        <div className="overflow-x-auto border border-border-subtle bg-surface-base rounded-lg shadow-sm">
-                            <table className="min-w-full divide-y divide-border-subtle">
-                                <thead className="bg-surface-container-low">
-                                    <tr>
-                                        <th className="px-gap-sm py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Name</th>
-                                        <th className="px-gap-sm py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Category</th>
-                                        <th className="px-gap-sm py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Barcode</th>
-                                        <th className="px-gap-sm py-3 text-right text-xs font-bold text-text-secondary uppercase tracking-wider">Price</th>
-                                        <th className="px-gap-sm py-3 text-right text-xs font-bold text-text-secondary uppercase tracking-wider">Stock</th>
-                                        <th className="px-gap-sm py-3 text-center text-xs font-bold text-text-secondary uppercase tracking-wider">Flags</th>
-                                        <th className="px-gap-sm py-3 text-right text-xs font-bold text-text-secondary uppercase tracking-wider">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-border-subtle bg-surface-base">
-                                    {products.data.map(product => {
-                                        const lowStock = product.total_stock <= product.reorder_level;
-                                        return (
-                                            <tr key={product.id} className={`${lowStock ? 'bg-status-warning-bg/10' : ''} hover:bg-surface-container-low transition-colors`}>
-                                                <td className="px-gap-sm py-3 whitespace-nowrap">
-                                                    <Link href={route('products.show', product.id)} className="text-sm font-bold text-primary hover:underline flex items-center gap-1">
-                                                        {product.name}
-                                                    </Link>
-                                                </td>
-                                                <td className="px-gap-sm py-3 whitespace-nowrap text-sm text-text-secondary">
-                                                    {product.category?.name || '—'}
-                                                </td>
-                                                <td className="px-gap-sm py-3 whitespace-nowrap text-sm text-text-muted font-mono">
-                                                    {product.barcode || '—'}
-                                                </td>
-                                                <td className="px-gap-sm py-3 whitespace-nowrap text-sm text-right font-bold text-text-primary">
-                                                    ${product.selling_price}
-                                                </td>
-                                                <td className={`px-gap-sm py-3 whitespace-nowrap text-sm text-right font-bold ${lowStock ? 'text-status-warning' : 'text-status-success'}`}>
-                                                    {product.total_stock ?? 0}
-                                                </td>
-                                                <td className="px-gap-sm py-3 whitespace-nowrap text-center">
-                                                    {product.requires_prescription && (
-                                                        <span className="px-1.5 py-0.5 text-xs font-bold rounded-sm bg-status-info-bg text-status-info border border-status-info uppercase tracking-wider mr-1">Rx</span>
-                                                    )}
-                                                    {product.is_controlled && (
-                                                        <span className="px-1.5 py-0.5 text-xs font-bold rounded-sm bg-status-critical-bg text-status-critical border border-status-critical uppercase tracking-wider">Ctrl</span>
-                                                    )}
-                                                </td>
-                                                <td className="px-gap-sm py-3 whitespace-nowrap text-right">
-                                                    <div className="flex items-center justify-end gap-gap-xs">
-                                                        <Link href={route('products.show', product.id)} className="text-xs font-bold text-primary uppercase tracking-wider border border-primary px-2 py-1 hover:bg-primary hover:text-on-primary transition-colors">
-                                                            VIEW
-                                                        </Link>
-                                                        {isAdmin && (
-                                                            <Link href={route('products.edit', product.id)} className="text-xs font-bold text-text-secondary uppercase tracking-wider border border-border-strong px-2 py-1 hover:border-primary hover:text-primary transition-colors">
-                                                                EDIT
-                                                            </Link>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                    {products.data.length === 0 && (
-                                        <tr>
-                                            <td colSpan={7} className="px-gap-sm py-8 text-center text-text-muted flex-col items-center flex">
-                                                <span className="material-symbols-outlined text-4xl mb-2">medication</span>
-                                                No products found.
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {/* Pagination */}
-                        {products.last_page > 1 && (
-                            <div className="flex justify-center gap-1 mt-gap-md">
-                                {products.links.map((link: any, i: number) => (
-                                    <Link
-                                        key={i}
-                                        href={link.url || '#'}
-                                        className={`px-3 py-1 text-sm font-bold border transition-colors ${link.active ? 'bg-primary text-on-primary border-primary' : 'bg-surface-overlay text-text-secondary border-border-strong hover:bg-surface-container-high'}`}
-                                        dangerouslySetInnerHTML={{ __html: link.label }}
-                                    />
-                                ))}
-                            </div>
-                        )}
+                        </Button>
                     </div>
                 </div>
+
+                {isCreating && (
+                    <Card className="border-emerald-200 shadow-sm">
+                        <CardHeader className="bg-emerald-50/50 pb-4">
+                            <CardTitle className="text-emerald-800 text-lg">New Product Registration</CardTitle>
+                            <CardDescription>Enter the details of the new medication or item into the system.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-4">
+                            <form onSubmit={submitCreate} className="flex flex-col gap-4">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium leading-none">Product Name <span className="text-red-500">*</span></label>
+                                        <Input type="text" placeholder="e.g. Paracetamol 500mg" value={data.name} onChange={e => setData('name', e.target.value)} required />
+                                        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium leading-none">Barcode</label>
+                                        <Input type="text" placeholder="Scan or enter barcode" value={data.barcode} onChange={e => setData('barcode', e.target.value)} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium leading-none">Category</label>
+                                        <Select value={data.category_id} onValueChange={v => setData('category_id', v)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select category" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="none">No Category</SelectItem>
+                                                {categories.map(cat => (
+                                                    <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium leading-none">Unit Measure</label>
+                                        <Input type="text" placeholder="e.g. Boxes, Bottles, Pieces" value={data.unit} onChange={e => setData('unit', e.target.value)} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium leading-none">Selling Price ($) <span className="text-red-500">*</span></label>
+                                        <Input type="number" step="0.01" min="0" placeholder="0.00" value={data.selling_price} onChange={e => setData('selling_price', e.target.value)} required />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium leading-none">Reorder Alert Level</label>
+                                        <Input type="number" min="0" value={data.reorder_level} onChange={e => setData('reorder_level', e.target.value)} />
+                                    </div>
+                                    <div className="space-y-2 lg:col-span-2 flex items-center gap-6 pt-6">
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox id="req_rx" checked={data.requires_prescription} onCheckedChange={(c) => setData('requires_prescription', !!c)} />
+                                            <label htmlFor="req_rx" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Requires Prescription</label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox id="ctrl_sub" checked={data.is_controlled} onCheckedChange={(c) => setData('is_controlled', !!c)} />
+                                            <label htmlFor="ctrl_sub" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Controlled Substance</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex justify-end mt-2">
+                                    <Button type="submit" disabled={processing}>
+                                        <Save className="mr-2 h-4 w-4" /> Save Product
+                                    </Button>
+                                </div>
+                            </form>
+                        </CardContent>
+                    </Card>
+                )}
+
+                <Card>
+                    <CardHeader className="pb-4">
+                        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input type="text" placeholder="Search by product name or barcode..." className="pl-8" value={search} onChange={e => setSearch(e.target.value)} />
+                            </div>
+                            <div className="w-full sm:w-[200px]">
+                                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="All Categories" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">All Categories</SelectItem>
+                                        {categories.map(cat => (
+                                            <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <Button type="submit" variant="secondary" className="w-full sm:w-auto">
+                                <Filter className="h-4 w-4 mr-2" /> Filter
+                            </Button>
+                        </form>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Product Name</TableHead>
+                                    <TableHead>Category</TableHead>
+                                    <TableHead className="text-right">Price</TableHead>
+                                    <TableHead className="text-right">Stock Available</TableHead>
+                                    <TableHead>Tags</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {products.data.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
+                                            No products found matching your criteria.
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    products.data.map((product) => {
+                                        const isLowStock = product.total_stock <= product.reorder_level;
+                                        const isOutOfStock = product.total_stock <= 0;
+                                        
+                                        return (
+                                            <TableRow key={product.id}>
+                                                <TableCell>
+                                                    <div className="font-medium text-gray-900">{product.name}</div>
+                                                    <div className="text-xs text-muted-foreground font-mono">{product.barcode || 'No Barcode'}</div>
+                                                </TableCell>
+                                                <TableCell className="text-muted-foreground text-sm">
+                                                    {product.category?.name || 'Uncategorized'}
+                                                </TableCell>
+                                                <TableCell className="text-right font-medium">
+                                                    {currency(product.selling_price)}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <div className={`font-bold inline-flex items-center gap-1 ${
+                                                        isOutOfStock ? 'text-red-600' : isLowStock ? 'text-amber-600' : 'text-emerald-600'
+                                                    }`}>
+                                                        {isLowStock && <AlertCircle className="h-3 w-3" />}
+                                                        {product.total_stock} {product.unit}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex gap-1 flex-wrap">
+                                                        {product.requires_prescription && <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100">Rx Required</Badge>}
+                                                        {product.is_controlled && <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-200">Controlled</Badge>}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button asChild variant="outline" size="sm">
+                                                        <Link href={route('products.show', product.id)}>
+                                                            Manage Stock
+                                                        </Link>
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })
+                                )}
+                            </TableBody>
+                        </Table>
+                        
+                        {/* Pagination */}
+                        {products.last_page > 1 && (
+                            <div className="flex justify-center border-t p-4">
+                                <div className="flex items-center gap-1">
+                                    {products.links.map((link, i) => (
+                                        <Button
+                                            key={i}
+                                            variant={link.active ? "default" : "outline"}
+                                            size="sm"
+                                            asChild
+                                            disabled={!link.url}
+                                            className={link.url ? "" : "opacity-50 pointer-events-none"}
+                                        >
+                                            <Link href={link.url || '#'} dangerouslySetInnerHTML={{ __html: link.label }} />
+                                        </Button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
         </AdminLayout>
     );

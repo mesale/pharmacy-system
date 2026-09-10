@@ -10,25 +10,39 @@ class InventoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'stockBatches' => function ($q) {
-            $q->where('quantity', '>', 0)->orderBy('expiry_date', 'asc');
-        }])->withSum('stockBatches as total_stock', 'quantity');
-
-        if ($request->has('search')) {
+        $query = Product::orderBy("name");
+        if ($request->has("search")) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('barcode', 'like', "%{$search}%");
+                $q->where("name", "like", "%{$search}%")
+                  ->orWhere("barcode", "like", "%{$search}%");
             });
         }
+        return response()->json($query->paginate(50));
+    }
 
-        if ($request->has('barcode')) {
-            $query->where('barcode', $request->barcode);
-        }
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            "name" => "required|string",
+            "barcode" => "nullable|string|unique:products",
+            "cost_price" => "required|numeric|min:0",
+            "selling_price" => "required|numeric|min:0",
+            "stock" => "required|integer|min:0"
+        ]);
+        Product::create($validated);
+        return response()->json(["message" => "Medicine added successfully"], 201);
+    }
 
-        // Must have stock for POS, but maybe admin wants all. Let's just return all, with total_stock computed.
-        $products = $query->paginate(50);
-
-        return response()->json($products);
+    public function update(Request $request, Product $product)
+    {
+        $validated = $request->validate([
+            "name" => "required|string",
+            "cost_price" => "required|numeric|min:0",
+            "selling_price" => "required|numeric|min:0",
+            "stock" => "required|integer|min:0"
+        ]);
+        $product->update($validated);
+        return response()->json(["message" => "Medicine updated successfully"], 200);
     }
 }

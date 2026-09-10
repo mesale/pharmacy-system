@@ -14,79 +14,67 @@ class SaleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'payment_method' => 'required|in:cash,card,insurance',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
+            "payment_method" => "required|in:cash,card,insurance",
+            "items" => "required|array|min:1",
+            "items.*.product_id" => "required|exists:products,id",
+            "items.*.quantity" => "required|integer|min:1",
         ]);
 
         try {
             DB::beginTransaction();
 
             $sale = Sale::create([
-                'worker_id' => $request->user()->id,
-                'payment_method' => $request->payment_method,
-                'total_amount' => 0,
-                'total_cost' => 0,
-                'profit' => 0,
+                "worker_id" => $request->user()->id,
+                "payment_method" => $request->payment_method,
+                "total_amount" => 0,
+                "total_cost" => 0,
+                "profit" => 0,
             ]);
 
             $totalAmount = 0;
             $totalCost = 0;
 
             foreach ($request->items as $item) {
-                $product = Product::with(['stockBatches' => function ($q) {
-                    $q->where('quantity', '>', 0)->orderBy('expiry_date', 'asc');
-                }])->findOrFail($item['product_id']);
+                $product = Product::findOrFail($item["product_id"]);
 
-                $remainingQty = $item['quantity'];
-
-                foreach ($product->stockBatches as $batch) {
-                    if ($remainingQty <= 0) break;
-
-                    $take = min($batch->quantity, $remainingQty);
-                    
-                    $subtotal = $take * $product->selling_price;
-                    $costSubtotal = $take * $batch->cost_price;
-
-                    SaleItem::create([
-                        'sale_id' => $sale->id,
-                        'product_id' => $product->id,
-                        'batch_id' => $batch->id,
-                        'quantity' => $take,
-                        'unit_price' => $product->selling_price,
-                        'unit_cost' => $batch->cost_price,
-                    ]);
-
-                    $batch->decrement('quantity', $take);
-                    
-                    $totalAmount += $subtotal;
-                    $totalCost += $costSubtotal;
-                    $remainingQty -= $take;
+                if ($product->stock < $item["quantity"]) {
+                    throw new \Exception("Insufficient stock for " . $product->name);
                 }
 
-                if ($remainingQty > 0) {
-                    throw new \Exception("Insufficient stock for product: {$product->name}");
-                }
+                $subtotal = $item["quantity"] * $product->selling_price;
+                $costSubtotal = $item["quantity"] * $product->cost_price;
+
+                SaleItem::create([
+                    "sale_id" => $sale->id,
+                    "product_id" => $product->id,
+                    "quantity" => $item["quantity"],
+                    "unit_price" => $product->selling_price,
+                    "unit_cost" => $product->cost_price,
+                ]);
+
+                $product->decrement("stock", $item["quantity"]);
+                
+                $totalAmount += $subtotal;
+                $totalCost += $costSubtotal;
             }
 
             $sale->update([
-                'total_amount' => $totalAmount,
-                'total_cost' => $totalCost,
-                'profit' => $totalAmount - $totalCost,
+                "total_amount" => $totalAmount,
+                "total_cost" => $totalCost,
+                "profit" => $totalAmount - $totalCost,
             ]);
 
             DB::commit();
 
             return response()->json([
-                'message' => 'Sale completed successfully',
-                'sale_id' => $sale->id,
+                "message" => "Sale completed successfully",
+                "sale_id" => $sale->id,
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'message' => $e->getMessage()
+                "message" => $e->getMessage()
             ], 400);
         }
     }

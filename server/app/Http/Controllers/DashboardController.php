@@ -93,6 +93,35 @@ class DashboardController extends Controller
             ];
         }
 
+        $trend = $request->query('trend', 'weekly');
+        $chartData = [];
+
+        if ($trend === 'yearly') {
+            $sales = Sale::whereYear('created_at', date('Y'))->get();
+            $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            for ($i = 1; $i <= 12; $i++) {
+                $monthSales = $sales->filter(fn($s) => $s->created_at->month === $i)->sum('total_amount');
+                $chartData[] = ['label' => $months[$i - 1], 'sales' => (float) $monthSales];
+            }
+        } elseif ($trend === 'monthly') {
+            $sales = Sale::whereYear('created_at', date('Y'))
+                ->whereMonth('created_at', date('m'))
+                ->get();
+            $daysInMonth = Carbon::now()->daysInMonth;
+            for ($i = 1; $i <= $daysInMonth; $i++) {
+                $daySales = $sales->filter(fn($s) => $s->created_at->day === $i)->sum('total_amount');
+                $chartData[] = ['label' => (string) $i, 'sales' => (float) $daySales];
+            }
+        } else {
+            // Weekly
+            $sales = Sale::where('created_at', '>=', Carbon::today()->subDays(6))->get();
+            for ($i = 6; $i >= 0; $i--) {
+                $date = Carbon::today()->subDays($i);
+                $daySales = $sales->filter(fn($s) => $s->created_at->isSameDay($date))->sum('total_amount');
+                $chartData[] = ['label' => $date->format('D'), 'sales' => (float) $daySales];
+            }
+        }
+
         return Inertia::render('Dashboard', [
             'grossSalesToday' => (float) $todayTotals->revenue,
             'netProfitToday' => (float) $todayTotals->profit,
@@ -101,6 +130,8 @@ class DashboardController extends Controller
             'expiredBatchesCount' => $expiredBatchesCount,
             'lowStockCount' => $lowStockCount,
             'criticalAlerts' => $criticalAlerts,
+            'chartData' => $chartData,
+            'currentTrend' => $trend,
         ]);
     }
 }

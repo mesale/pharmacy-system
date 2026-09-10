@@ -30,39 +30,39 @@ export default function Login({ status, canResetPassword }) {
             </Head>
 
             {status && (
-                <div className="mb-gap-md text-sm font-bold text-status-success uppercase tracking-wider">
+                <div className="mb-4 text-sm font-bold text-green-600 uppercase tracking-wider">
                     {status}
                 </div>
             )}
 
-            <form onSubmit={submit} className="flex flex-col gap-gap-md">
+            <form onSubmit={submit} className="flex flex-col gap-4">
                 <div>
-                    <label htmlFor="email" className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Auth Identifier (Email)</label>
+                    <label htmlFor="email" className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Auth Identifier (Email)</label>
                     <input
                         id="email"
                         type="email"
                         name="email"
                         value={data.email}
-                        className="block w-full bg-surface-base border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm"
+                        className="block w-full bg-white shadow-sm rounded-lg border border-gray-300 text-gray-900 focus:border-emerald-600 focus:ring-1 focus:ring-primary py-2 px-3 text-sm"
                         autoComplete="username"
                         autoFocus
                         onChange={(e) => setData('email', e.target.value)}
                     />
-                    {errors.email && <p className="text-status-critical text-xs mt-2 font-bold uppercase">{errors.email}</p>}
+                    {errors.email && <p className="text-red-600 text-xs mt-2 font-bold uppercase">{errors.email}</p>}
                 </div>
 
                 <div>
-                    <label htmlFor="password" className="block text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Security Key (Password)</label>
+                    <label htmlFor="password" className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Security Key (Password)</label>
                     <input
                         id="password"
                         type="password"
                         name="password"
                         value={data.password}
-                        className="block w-full bg-surface-base border border-border-strong text-text-primary focus:border-primary focus:ring-1 focus:ring-primary py-2 px-3 text-sm"
+                        className="block w-full bg-white shadow-sm rounded-lg border border-gray-300 text-gray-900 focus:border-emerald-600 focus:ring-1 focus:ring-primary py-2 px-3 text-sm"
                         autoComplete="current-password"
                         onChange={(e) => setData('password', e.target.value)}
                     />
-                    {errors.password && <p className="text-status-critical text-xs mt-2 font-bold uppercase">{errors.password}</p>}
+                    {errors.password && <p className="text-red-600 text-xs mt-2 font-bold uppercase">{errors.password}</p>}
                 </div>
 
                 <div className="flex items-center justify-between mt-2">
@@ -72,9 +72,9 @@ export default function Login({ status, canResetPassword }) {
                             name="remember"
                             checked={data.remember}
                             onChange={(e) => setData('remember', e.target.checked)}
-                            className="bg-surface-base border-border-strong text-primary focus:ring-primary"
+                            className="bg-white shadow-sm rounded-lg border-gray-300 text-emerald-600 focus:ring-primary"
                         />
-                        <span className="ml-2 text-xs font-bold text-text-secondary uppercase tracking-wider">
+                        <span className="ml-2 text-xs font-bold text-gray-600 uppercase tracking-wider">
                             Persist Session
                         </span>
                     </label>
@@ -82,7 +82,7 @@ export default function Login({ status, canResetPassword }) {
                     {canResetPassword && (
                         <Link
                             href={route('password.request')}
-                            className="text-xs font-bold text-primary uppercase tracking-wider hover:underline"
+                            className="text-xs font-bold text-emerald-600 uppercase tracking-wider hover:underline"
                         >
                             Reset Key
                         </Link>
@@ -93,7 +93,7 @@ export default function Login({ status, canResetPassword }) {
                     <button
                         type="submit"
                         disabled={processing}
-                        className="w-full bg-primary text-on-primary hover:bg-primary-hover transition-colors font-bold uppercase tracking-wider text-sm py-3 flex items-center justify-center gap-2 border border-primary"
+                        className="w-full bg-emerald-600 text-white text-white hover:bg-emerald-600 text-white-hover transition-colors font-bold uppercase tracking-wider text-sm py-3 flex items-center justify-center gap-2 border border-emerald-600"
                     >
                         <span className="material-symbols-outlined text-sm">login</span>
                         Authenticate
