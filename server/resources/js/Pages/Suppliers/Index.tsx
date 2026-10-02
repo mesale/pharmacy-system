@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, useForm } from '@inertiajs/react';
 import { Truck, Plus, X, Save, Phone, Mail, MapPin } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/Components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
+import { Button } from '@/Components/ui/button';
+import { Input } from '@/Components/ui/input';
 
 interface Supplier {
     id: number;
@@ -49,7 +49,7 @@ export default function Index({ auth, suppliers }: Props) {
             <div className="flex flex-col gap-6 w-full pb-12">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-6">
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight text-gray-900">Suppliers</h2>
+                        <h2 className="text-3xl font-bold tracking-tight text-foreground">Suppliers</h2>
                         <p className="text-muted-foreground mt-1">Manage external vendors and pharmaceutical suppliers.</p>
                     </div>
                     {isAdmin && (
@@ -69,9 +69,9 @@ export default function Index({ auth, suppliers }: Props) {
                 </div>
 
                 {isCreating && (
-                    <Card className="border-emerald-200 shadow-sm">
-                        <CardHeader className="bg-emerald-50/50 pb-4">
-                            <CardTitle className="text-emerald-800 text-lg">New Supplier</CardTitle>
+                    <Card className="ring-emerald-500/30">
+                        <CardHeader className="bg-emerald-500/5 pb-4">
+                            <CardTitle className="text-emerald-700 dark:text-emerald-400 text-lg">New Supplier</CardTitle>
                             <CardDescription>Enter the contact and business details of the new supplier.</CardDescription>
                         </CardHeader>
                         <CardContent className="pt-4">
@@ -151,7 +151,7 @@ export default function Index({ auth, suppliers }: Props) {
                                                     </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-right font-medium text-emerald-600">
+                                            <TableCell className="text-right font-medium text-emerald-600 dark:text-emerald-400">
                                                 {supplier.stock_batches_count}
                                             </TableCell>
                                         </TableRow>

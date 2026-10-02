@@ -3,79 +3,44 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\SaleService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Models\Product;
-use App\Models\Sale;
-use App\Models\SaleItem;
 
 class SaleController extends Controller
 {
-    public function store(Request $request)
+    /**
+     * Record a sale made from the mobile till.
+     *
+     * This previously carried its own checkout logic that assumed a flat
+     * product.stock / product.cost_price model which does not exist in this
+     * schema, so every mobile sale failed. It now goes through the same
+     * FEFO SaleService the web till uses. Money fields sent by the client are
+     * ignored: totals are computed server-side from the catalogue and batches.
+     */
+    public function store(Request $request, SaleService $saleService)
     {
-        $request->validate([
-            "payment_method" => "required|in:cash,card,insurance",
-            "items" => "required|array|min:1",
-            "items.*.product_id" => "required|exists:products,id",
-            "items.*.quantity" => "required|integer|min:1",
+        $validated = $request->validate([
+            'payment_method' => 'required|in:cash,card,insurance',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|integer|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'tendered_amount' => 'nullable|numeric|min:0',
         ]);
 
-        try {
-            DB::beginTransaction();
+        // A thrown ValidationException (insufficient stock, underpaid cash) is
+        // rendered as a 422 JSON body {message, errors} by the API exception
+        // handler — which is exactly what the mobile client reads.
+        $sale = $saleService->checkout(
+            $validated['items'],
+            $validated['payment_method'],
+            $request->user()->id,
+            isset($validated['tendered_amount']) ? (float) $validated['tendered_amount'] : null,
+        );
 
-            $sale = Sale::create([
-                "worker_id" => $request->user()->id,
-                "payment_method" => $request->payment_method,
-                "total_amount" => 0,
-                "total_cost" => 0,
-                "profit" => 0,
-            ]);
-
-            $totalAmount = 0;
-            $totalCost = 0;
-
-            foreach ($request->items as $item) {
-                $product = Product::findOrFail($item["product_id"]);
-
-                if ($product->stock < $item["quantity"]) {
-                    throw new \Exception("Insufficient stock for " . $product->name);
-                }
-
-                $subtotal = $item["quantity"] * $product->selling_price;
-                $costSubtotal = $item["quantity"] * $product->cost_price;
-
-                SaleItem::create([
-                    "sale_id" => $sale->id,
-                    "product_id" => $product->id,
-                    "quantity" => $item["quantity"],
-                    "unit_price" => $product->selling_price,
-                    "unit_cost" => $product->cost_price,
-                ]);
-
-                $product->decrement("stock", $item["quantity"]);
-                
-                $totalAmount += $subtotal;
-                $totalCost += $costSubtotal;
-            }
-
-            $sale->update([
-                "total_amount" => $totalAmount,
-                "total_cost" => $totalCost,
-                "profit" => $totalAmount - $totalCost,
-            ]);
-
-            DB::commit();
-
-            return response()->json([
-                "message" => "Sale completed successfully",
-                "sale_id" => $sale->id,
-            ], 201);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                "message" => $e->getMessage()
-            ], 400);
-        }
+        return response()->json([
+            'message' => 'Sale completed successfully',
+            'sale_id' => $sale->id,
+            'total_amount' => (float) $sale->total_amount,
+        ], 201);
     }
 }

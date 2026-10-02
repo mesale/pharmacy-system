@@ -59,8 +59,12 @@ function DropdownMenuLabel({
   inset,
   ...props
 }) {
+  // Base UI's Menu.GroupLabel reads a group context and THROWS when it is not
+  // wrapped in <Menu.Group>, which blanked the whole page the moment this menu
+  // opened. A dropdown label is purely visual and is commonly used standalone,
+  // so render a plain div — it can never crash regardless of placement.
   return (
-    <MenuPrimitive.GroupLabel
+    <div
       data-slot="dropdown-menu-label"
       data-inset={inset}
       className={cn(

@@ -3,11 +3,11 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, router } from '@inertiajs/react';
 import axios from 'axios';
 import { BarChart3, FileSpreadsheet, Activity, DollarSign, ArrowUpRight, ArrowDownRight, CalendarDays, Loader2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/Components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
+import { Button } from '@/Components/ui/button';
+import { Input } from '@/Components/ui/input';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 
 interface Props {
     auth: any;
@@ -18,13 +18,15 @@ interface Props {
         total_cogs: number;
     };
     dailyData: any[];
-    startDate: string;
-    endDate: string;
+    filters: {
+        start_date: string;
+        end_date: string;
+    };
 }
 
-export default function Index({ auth, summary, dailyData, startDate: initialStartDate, endDate: initialEndDate }: Props) {
-    const [startDate, setStartDate] = useState(initialStartDate);
-    const [endDate, setEndDate] = useState(initialEndDate);
+export default function Index({ auth, summary, dailyData, filters }: Props) {
+    const [startDate, setStartDate] = useState(filters.start_date);
+    const [endDate, setEndDate] = useState(filters.end_date);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [dayItems, setDayItems] = useState<any[]>([]);
     const [isLoadingDay, setIsLoadingDay] = useState(false);
@@ -41,11 +43,13 @@ export default function Index({ auth, summary, dailyData, startDate: initialStar
     const openDayDetails = async (date: string) => {
         setSelectedDate(date);
         setIsLoadingDay(true);
+        setDayItems([]); // drop the previous day's rows so they don't flash in during load
         try {
             const response = await axios.get(route('reports.day', { date }));
             setDayItems(response.data);
         } catch (error) {
             console.error("Failed to load day details", error);
+            setDayItems([]);
         } finally {
             setIsLoadingDay(false);
         }
@@ -58,7 +62,7 @@ export default function Index({ auth, summary, dailyData, startDate: initialStar
             <div className="flex flex-col gap-6 w-full pb-12">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-6">
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight text-gray-900">Financial Reports</h2>
+                        <h2 className="text-3xl font-bold tracking-tight text-foreground">Financial Reports</h2>
                         <p className="text-muted-foreground mt-1">Detailed breakdown of sales, revenue, and profit margins.</p>
                     </div>
                 </div>
@@ -164,15 +168,18 @@ export default function Index({ auth, summary, dailyData, startDate: initialStar
                                     </TableRow>
                                 ) : (
                                     dailyData.map((day) => {
-                                        const margin = (Number(day.profit) / Number(day.revenue) * 100) || 0;
+                                        // Guard the denominator: revenue of 0 would make this Infinity,
+                                        // which `|| 0` does not catch (Infinity is truthy).
+                                        const revenue = Number(day.revenue);
+                                        const margin = revenue > 0 ? (Number(day.profit) / revenue) * 100 : 0;
                                         return (
                                             <TableRow 
                                                 key={day.date} 
-                                                className="cursor-pointer hover:bg-emerald-50/50 transition-colors"
+                                                className="cursor-pointer hover:bg-muted/50 transition-colors"
                                                 onClick={() => openDayDetails(day.date)}
                                             >
                                                 <TableCell className="font-medium">
-                                                    {new Date(day.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                                                    {new Date(day.date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
                                                 </TableCell>
                                                 <TableCell className="text-right font-mono text-muted-foreground">
                                                     {day.total_transactions}
@@ -202,7 +209,7 @@ export default function Index({ auth, summary, dailyData, startDate: initialStar
             <Dialog open={!!selectedDate} onOpenChange={(open) => !open && setSelectedDate(null)}>
                 <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
                     <DialogHeader>
-                        <DialogTitle>Sales Detail for {selectedDate ? new Date(selectedDate).toLocaleDateString() : ''}</DialogTitle>
+                        <DialogTitle>Sales Detail for {selectedDate ? new Date(selectedDate + 'T00:00:00').toLocaleDateString() : ''}</DialogTitle>
                         <DialogDescription>List of all products sold on this date across all transactions.</DialogDescription>
                     </DialogHeader>
                     

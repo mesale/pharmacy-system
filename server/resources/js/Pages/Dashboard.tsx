@@ -2,10 +2,10 @@ import React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Badge } from "@/Components/ui/badge";
+import { Button } from "@/Components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table";
 import { AlertCircle, ArrowUpRight, DollarSign, Package, ShoppingCart, Activity } from 'lucide-react';
 
 interface Props {
@@ -44,7 +44,7 @@ export default function Dashboard({
             <div className="flex flex-col gap-6 w-full pb-12">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-6">
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight text-gray-900">Overview</h2>
+                        <h2 className="text-3xl font-bold tracking-tight text-foreground">Overview</h2>
                         <p className="text-muted-foreground mt-1">Here is what's happening in your pharmacy today.</p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -75,7 +75,7 @@ export default function Dashboard({
                             <Activity className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-green-600">{formatCurrency(netProfitToday)}</div>
+                            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(netProfitToday)}</div>
                             <p className="text-xs text-muted-foreground mt-1">
                                 After unit costs deduction
                             </p>
@@ -88,7 +88,7 @@ export default function Dashboard({
                             <AlertCircle className="h-4 w-4 text-orange-500" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-orange-600">{expiringBatchesCount + expiredBatchesCount}</div>
+                            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{expiringBatchesCount + expiredBatchesCount}</div>
                             <p className="text-xs text-muted-foreground mt-1">
                                 Requires immediate audit
                             </p>
@@ -101,7 +101,7 @@ export default function Dashboard({
                             <Package className="h-4 w-4 text-red-500" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-red-600">{lowStockCount}</div>
+                            <div className="text-2xl font-bold text-red-600 dark:text-red-400">{lowStockCount}</div>
                             <p className="text-xs text-muted-foreground mt-1">
                                 Products reached reorder level
                             </p>
@@ -157,8 +157,8 @@ export default function Dashboard({
                             <CardDescription>Frequently used modules</CardDescription>
                         </CardHeader>
                         <CardContent className="flex flex-col gap-3 flex-1">
-                            <Link href={route('pos.index')} className="flex items-center gap-3 p-3 rounded-md border hover:bg-slate-50 transition-colors">
-                                <div className="bg-emerald-100 p-2 rounded-full text-emerald-600">
+                            <Link href={route('pos.index')} className="flex items-center gap-3 p-3 rounded-md border hover:bg-muted transition-colors">
+                                <div className="bg-emerald-500/10 p-2 rounded-full text-emerald-600 dark:text-emerald-400">
                                     <ShoppingCart className="w-5 h-5" />
                                 </div>
                                 <div className="flex-1">
@@ -168,8 +168,8 @@ export default function Dashboard({
                                 <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
                             </Link>
 
-                            <Link href={route('products.index')} className="flex items-center gap-3 p-3 rounded-md border hover:bg-slate-50 transition-colors">
-                                <div className="bg-emerald-100 p-2 rounded-full text-emerald-600">
+                            <Link href={route('products.index')} className="flex items-center gap-3 p-3 rounded-md border hover:bg-muted transition-colors">
+                                <div className="bg-emerald-500/10 p-2 rounded-full text-emerald-600 dark:text-emerald-400">
                                     <Package className="w-5 h-5" />
                                 </div>
                                 <div className="flex-1">
@@ -179,8 +179,8 @@ export default function Dashboard({
                                 <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
                             </Link>
 
-                            <Link href={route('reports.index')} className="flex items-center gap-3 p-3 rounded-md border hover:bg-slate-50 transition-colors">
-                                <div className="bg-purple-100 p-2 rounded-full text-purple-600">
+                            <Link href={route('reports.index')} className="flex items-center gap-3 p-3 rounded-md border hover:bg-muted transition-colors">
+                                <div className="bg-purple-500/10 p-2 rounded-full text-purple-600 dark:text-purple-400">
                                     <Activity className="w-5 h-5" />
                                 </div>
                                 <div className="flex-1">
@@ -194,9 +194,9 @@ export default function Dashboard({
                 </div>
 
                 {criticalAlerts.length > 0 && (
-                    <Card className="border-orange-200 shadow-sm">
-                        <CardHeader className="bg-orange-50/50 pb-4">
-                            <CardTitle className="text-orange-800 flex items-center gap-2">
+                    <Card className="ring-amber-500/30">
+                        <CardHeader className="bg-amber-500/5 pb-4">
+                            <CardTitle className="text-amber-700 dark:text-amber-400 flex items-center gap-2">
                                 <AlertCircle className="w-5 h-5" />
                                 Attention Required
                             </CardTitle>
@@ -216,8 +216,8 @@ export default function Dashboard({
                                         <TableRow key={i}>
                                             <TableCell>
                                                 {alert.type === 'expired' && <Badge variant="destructive">Expired</Badge>}
-                                                {alert.type === 'expiring' && <Badge variant="warning" className="bg-orange-100 text-orange-800 hover:bg-orange-100">Expiring</Badge>}
-                                                {alert.type === 'low_stock' && <Badge variant="outline" className="border-red-200 text-red-700 bg-red-50">Low Stock</Badge>}
+                                                {alert.type === 'expiring' && <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400">Expiring</Badge>}
+                                                {alert.type === 'low_stock' && <Badge variant="outline" className="border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-400">Low Stock</Badge>}
                                             </TableCell>
                                             <TableCell className="font-medium">{alert.product}</TableCell>
                                             <TableCell className="text-sm text-muted-foreground">

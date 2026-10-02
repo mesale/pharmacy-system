@@ -2,9 +2,9 @@ import React from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head } from '@inertiajs/react';
 import { History, ArrowDownRight, ArrowUpRight } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/Components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
+import { Badge } from '@/Components/ui/badge';
 
 interface StockAdjustment {
     id: number;
@@ -33,7 +33,7 @@ export default function Index({ auth, adjustments }: Props) {
             <div className="flex flex-col gap-6 w-full pb-12">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-6">
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight text-gray-900">Audit Log</h2>
+                        <h2 className="text-3xl font-bold tracking-tight text-foreground">Audit Log</h2>
                         <p className="text-muted-foreground mt-1">Track all manual inventory adjustments and discrepancy resolutions.</p>
                     </div>
                 </div>
@@ -74,7 +74,7 @@ export default function Index({ auth, adjustments }: Props) {
                                                 {adj.user.name}
                                             </TableCell>
                                             <TableCell>
-                                                <div className="font-medium text-gray-900">{adj.product.name}</div>
+                                                <div className="font-medium text-foreground">{adj.product.name}</div>
                                                 <div className="text-xs text-muted-foreground font-mono">Batch: {adj.batch.batch_number}</div>
                                             </TableCell>
                                             <TableCell>
@@ -88,7 +88,7 @@ export default function Index({ auth, adjustments }: Props) {
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <div className={`inline-flex items-center gap-1 font-bold ${
-                                                    adj.quantity_change < 0 ? 'text-red-600' : 'text-emerald-600'
+                                                    adj.quantity_change < 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'
                                                 }`}>
                                                     {adj.quantity_change < 0 ? (
                                                         <ArrowDownRight className="h-4 w-4" />

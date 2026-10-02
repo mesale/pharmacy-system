@@ -26,7 +26,7 @@ import {
 } from '@expo-google-fonts/inter';
 import { font, radii } from './src/theme';
 import { ThemeProvider, useTheme } from './src/theme-context';
-import api from './src/api';
+import api, { setUnauthorizedHandler } from './src/api';
 
 import PosScanScreen from './src/screens/PosScanScreen';
 import LoginScreen from './src/screens/LoginScreen';
@@ -168,6 +168,14 @@ function AppInner() {
 
   useEffect(() => {
     checkAuth();
+  }, []);
+
+  // A 401 on any authenticated request means the token is no longer valid, so
+  // drop the user back to the login screen rather than showing broken data.
+  // Registered once; setUser from useState has a stable identity.
+  useEffect(() => {
+    setUnauthorizedHandler(() => setUser(null));
+    return () => setUnauthorizedHandler(null);
   }, []);
 
   const checkAuth = async () => {

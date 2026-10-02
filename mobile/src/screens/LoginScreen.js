@@ -1,11 +1,54 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
-import { LogIn, Activity } from 'lucide-react-native';
-import { fonts, font, radii } from '../theme';
+import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity, Platform, StatusBar as RNStatusBar } from 'react-native';
+import { LogIn, Activity, Sun, Moon, Monitor } from 'lucide-react-native';
+import { font, radii } from '../theme';
 import { useTheme, useThemedStyles } from '../theme-context';
-import { Button, Input } from '../components/ui';
-import api from '../api';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Input } from '../components/ui';
+import api, { API_URL } from '../api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Clear the status bar / notch for the absolutely-positioned theme toggle, since
+// the login screen renders outside the navigator (no header to offset it).
+const TOP_INSET = Platform.OS === 'android' ? (RNStatusBar.currentHeight || 24) : 48;
+
+const THEME_OPTIONS = [
+  { key: 'light', label: 'Light', icon: Sun },
+  { key: 'dark', label: 'Dark', icon: Moon },
+  { key: 'system', label: 'Auto', icon: Monitor },
+];
+
+// Light / Dark / Auto selector — mirrors the drawer's ThemeToggle and the web
+// login's toggle, wired to the same theme context (mode/setMode).
+function ThemeToggle() {
+  const { colors, mode, setMode } = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', borderRadius: radii.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceBase, overflow: 'hidden' }}>
+      {THEME_OPTIONS.map((opt, i) => {
+        const active = mode === opt.key;
+        const Icon = opt.icon;
+        return (
+          <TouchableOpacity
+            key={opt.key}
+            onPress={() => setMode(opt.key)}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 5,
+              paddingHorizontal: 10,
+              paddingVertical: 7,
+              backgroundColor: active ? colors.primary : 'transparent',
+              borderLeftWidth: i === 0 ? 0 : 1,
+              borderLeftColor: colors.border,
+            }}
+          >
+            <Icon size={13} color={active ? colors.primaryForeground : colors.textSecondary} />
+            <Text style={{ fontFamily: font.medium, fontWeight: '500', fontSize: 11, color: active ? colors.primaryForeground : colors.textSecondary }}>{opt.label}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
 
 export default function LoginScreen({ onLoginSuccess }) {
   const { colors } = useTheme();
@@ -25,92 +68,99 @@ export default function LoginScreen({ onLoginSuccess }) {
       await AsyncStorage.setItem('auth_user', JSON.stringify(user));
       if (onLoginSuccess) onLoginSuccess(user);
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please check credentials.');
+      // Distinguish a real auth failure (server responded) from the app simply
+      // not being able to reach the backend, which otherwise looked identical.
+      if (err.response) {
+        setError(err.response.data?.message || 'Login failed. Please check your credentials.');
+      } else {
+        setError(`Can't reach the server at ${API_URL}. Make sure the backend is running and your device is on the same Wi-Fi network.`);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Brand block — mirrors GuestLayout header */}
-      <View style={styles.brand}>
-        <View style={{ backgroundColor: colors.primary, padding: 12, borderRadius: radii.lg, marginBottom: 16 }}>
-          <Activity size={32} color="#ffffff" />
-        </View>
-        <Text style={styles.brandTitle}>PHARMACY</Text>
-        <Text style={styles.brandSub}>Mobile Terminal</Text>
+    <View style={styles.root}>
+      {/* Theme selector, top-right — matches the web login screen. */}
+      <View style={styles.themeWrap}>
+        <ThemeToggle />
       </View>
 
-      {/* Card */}
-      <View style={styles.card}>
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-        <View style={styles.field}>
-          <Text style={styles.label}>Auth Identifier (Email)</Text>
-          <Input
-            placeholder="user@example.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        {/* Brand block — same logo mark as the drawer header, using the app's
+            standard h1 type scale so it reads like the rest of the screens. */}
+        <View style={styles.brand}>
+          <View style={styles.logo}>
+            <Activity size={28} color={colors.primaryForeground} />
+          </View>
+          <Text style={styles.h1}>Pharmacy</Text>
         </View>
 
-        <View style={styles.field}>
-          <Text style={styles.label}>Security Key (Password)</Text>
-          <Input
-            placeholder="••••••••"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-        </View>
+        {/* Standard Card + CardHeader + CardContent, matching the other screens
+            (e.g. the Reports "Filter Period" card) rather than a bespoke panel. */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Sign In</CardTitle>
+            <CardDescription>Enter your credentials to continue.</CardDescription>
+          </CardHeader>
+          <CardContent style={{ gap: 16 }}>
+            {error ? (
+              <View style={styles.errorBox}>
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            ) : null}
 
-        <Button size="lg" onPress={handleLogin} disabled={loading} style={{ marginTop: 8, height: 48 }}>
-          {({ color, size }) => (
-            loading
-              ? <ActivityIndicator color="#ffffff" />
-              : (
-                <>
-                  <LogIn size={18} color={color} />
-                  <Text style={{ color, fontFamily: font.semibold, fontWeight: '600', fontSize: 14 }}>Authenticate</Text>
-                </>
-              )
-          )}
-        </Button>
-      </View>
-    </ScrollView>
+            <View style={{ gap: 8 }}>
+              <Text style={styles.label}>Email</Text>
+              <Input
+                placeholder="you@example.com"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+
+            <View style={{ gap: 8 }}>
+              <Text style={styles.label}>Password</Text>
+              <Input
+                placeholder="••••••••"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
+            </View>
+
+            <Button size="lg" onPress={handleLogin} disabled={loading} style={{ marginTop: 4 }}>
+              {({ color, size }) => (
+                loading
+                  ? <ActivityIndicator color={color} />
+                  : (
+                    <>
+                      <LogIn size={size} color={color} />
+                      <Text style={{ color, fontFamily: font.semibold, fontWeight: '600', fontSize: 16 }}>Sign In</Text>
+                    </>
+                  )
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+      </ScrollView>
+    </View>
   );
 }
 
 const makeStyles = (c) => StyleSheet.create({
-  container: { flexGrow: 1, backgroundColor: c.background, justifyContent: 'center', padding: 24 },
-  brand: { alignItems: 'center', marginBottom: 32 },
-  brandTitle: { fontFamily: font.bold, fontWeight: '700', fontSize: 20, color: c.textPrimary, letterSpacing: 1 },
-  brandSub: { fontFamily: font.medium, fontSize: 12, color: c.textMuted, letterSpacing: 1, marginTop: 4 },
-  card: {
-    backgroundColor: c.surfaceBase,
-    borderWidth: 1,
-    borderColor: c.border,
-    borderRadius: radii.lg,
-    padding: 24,
-    gap: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
-  },
-  field: { gap: 8 },
-  label: { fontFamily: font.bold, fontWeight: '700', fontSize: 12, color: c.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5 },
-  errorText: {
-    color: c.statusCriticalText,
-    fontFamily: font.medium,
-    fontSize: 13,
-    textAlign: 'center',
-    backgroundColor: c.statusCriticalBg,
-    padding: 10,
-    borderRadius: radii.md,
-  },
+  root: { flex: 1, backgroundColor: c.background },
+  themeWrap: { position: 'absolute', top: TOP_INSET + 8, right: 16, zIndex: 10 },
+  container: { flex: 1 },
+  content: { flexGrow: 1, justifyContent: 'center', padding: 24, gap: 24 },
+  brand: { alignItems: 'center' },
+  logo: { backgroundColor: c.primary, padding: 14, borderRadius: radii.lg, marginBottom: 12 },
+  h1: { fontFamily: font.bold, fontWeight: '700', fontSize: 28, color: c.textPrimary, letterSpacing: -0.5 },
+  label: { fontFamily: font.medium, fontWeight: '500', fontSize: 14, color: c.textPrimary },
+  errorBox: { backgroundColor: c.statusCriticalBg, borderRadius: radii.md, padding: 12 },
+  errorText: { color: c.statusCriticalText, fontFamily: font.medium, fontWeight: '500', fontSize: 13, textAlign: 'center' },
 });

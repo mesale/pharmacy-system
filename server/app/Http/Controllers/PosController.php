@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\Sale;
+use App\Services\SaleService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class PosController extends Controller
@@ -34,7 +32,7 @@ class PosController extends Controller
         return Inertia::render('Pos/Index', ['products' => $products]);
     }
 
-    public function checkout(Request $request)
+    public function checkout(Request $request, SaleService $saleService)
     {
         $validated = $request->validate([
             'items' => 'required|array|min:1',
@@ -44,106 +42,17 @@ class PosController extends Controller
             'tendered_amount' => 'nullable|numeric|min:0',
         ]);
 
-        return DB::transaction(function () use ($validated, $request) {
-            // Merge duplicate line items so one product is dispensed once.
-            $requested = [];
-            foreach ($validated['items'] as $item) {
-                $id = (int) $item['product_id'];
-                $requested[$id] = ($requested[$id] ?? 0) + (int) $item['quantity'];
-            }
+        // The FEFO dispensing + sale recording lives in SaleService so the web
+        // till and the mobile API stay in lockstep. A ValidationException thrown
+        // there (insufficient stock, underpaid cash) is turned by Inertia into a
+        // redirect back with errors — exactly what this endpoint returned before.
+        $saleService->checkout(
+            $validated['items'],
+            $validated['payment_method'],
+            $request->user()->id,
+            isset($validated['tendered_amount']) ? (float) $validated['tendered_amount'] : null,
+        );
 
-            $totalAmount = 0.0;
-            $totalCost = 0.0;
-            $saleItemsData = [];
-
-            $products = Product::whereIn('id', array_keys($requested))->get()->keyBy('id');
-
-            foreach ($requested as $productId => $qtyNeeded) {
-                $product = $products[$productId];
-
-                // Price is always the catalogue price from the database. It is never
-                // taken from the request: workers cannot alter prices at the till.
-                $unitPrice = (float) $product->selling_price;
-
-                // FEFO: earliest expiry first, but expired stock is never dispensed.
-                $batches = $product->sellableBatches()
-                    ->orderBy('expiry_date')
-                    ->orderBy('id')
-                    ->lockForUpdate()
-                    ->get();
-
-                $totalAvailable = (int) $batches->sum('quantity');
-
-                if ($totalAvailable < $qtyNeeded) {
-                    $expiredOnHand = (int) $product->stockBatches()
-                        ->where('quantity', '>', 0)
-                        ->whereDate('expiry_date', '<', now()->toDateString())
-                        ->sum('quantity');
-
-                    $message = "Not enough sellable stock for {$product->name}. "
-                        . "Requested: {$qtyNeeded}, available: {$totalAvailable}.";
-
-                    if ($expiredOnHand > 0) {
-                        $message .= " {$expiredOnHand} unit(s) on hand are expired and cannot be sold —"
-                            . ' write them off with a stock adjustment.';
-                    }
-
-                    throw ValidationException::withMessages(['items' => $message]);
-                }
-
-                foreach ($batches as $batch) {
-                    if ($qtyNeeded <= 0) {
-                        break;
-                    }
-
-                    $qtyToTake = min($qtyNeeded, (int) $batch->quantity);
-                    $batch->decrement('quantity', $qtyToTake);
-                    $qtyNeeded -= $qtyToTake;
-
-                    $unitCost = (float) $batch->cost_price;
-
-                    $totalAmount += $qtyToTake * $unitPrice;
-                    $totalCost += $qtyToTake * $unitCost;
-
-                    $saleItemsData[] = [
-                        'product_id' => $product->id,
-                        'batch_id' => $batch->id,
-                        'quantity' => $qtyToTake,
-                        'unit_price' => $unitPrice,
-                        'unit_cost' => $unitCost,
-                    ];
-                }
-            }
-
-            $totalAmount = round($totalAmount, 2);
-            $totalCost = round($totalCost, 2);
-
-            // A cash sale must actually cover the bill, otherwise the till will
-            // never reconcile against what was recorded.
-            if ($validated['payment_method'] === 'cash') {
-                $tendered = (float) ($validated['tendered_amount'] ?? 0);
-
-                if ($tendered + 0.001 < $totalAmount) {
-                    throw ValidationException::withMessages([
-                        'tendered_amount' => 'Cash tendered ('
-                            . number_format($tendered, 2)
-                            . ') is less than the total due ('
-                            . number_format($totalAmount, 2) . ').',
-                    ]);
-                }
-            }
-
-            $sale = Sale::create([
-                'worker_id' => $request->user()->id,
-                'total_amount' => $totalAmount,
-                'total_cost' => $totalCost,
-                'profit' => round($totalAmount - $totalCost, 2),
-                'payment_method' => $validated['payment_method'],
-            ]);
-
-            $sale->items()->createMany($saleItemsData);
-
-            return redirect()->back()->with('success', 'Sale completed successfully!');
-        });
+        return redirect()->back()->with('success', 'Sale completed successfully!');
     }
 }

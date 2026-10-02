@@ -2,13 +2,13 @@ import React, { useState, useMemo } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 import { ShoppingCart, Search, Plus, Minus, Trash2, CreditCard, Banknote, ShieldAlert, CheckCircle2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/Components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
+import { Button } from '@/Components/ui/button';
+import { Input } from '@/Components/ui/input';
+import { Badge } from '@/Components/ui/badge';
+import { ScrollArea } from '@/Components/ui/scroll-area';
+import { Separator } from '@/Components/ui/separator';
 
 interface Product {
     id: number;
@@ -38,6 +38,7 @@ export default function Index({ auth, products, flash = {} }: Props) {
     const [paymentMethod, setPaymentMethod] = useState<'cash'|'card'|'insurance'>('cash');
     const [tenderedCash, setTenderedCash] = useState<string>('');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [checkoutErrors, setCheckoutErrors] = useState<Record<string, string>>({});
 
     // Derived state
     const filteredProducts = useMemo(() => {
@@ -84,28 +85,39 @@ export default function Index({ auth, products, flash = {} }: Props) {
     const checkout = () => {
         if (cart.length === 0) return;
         setIsProcessing(true);
+        setCheckoutErrors({});
 
         const items = cart.map(i => ({
             product_id: i.product.id,
             quantity: i.quantity,
-            price: i.product.selling_price,
         }));
 
+        // Price and totals are intentionally not sent: the server computes them
+        // from the catalogue and the batches it draws down. Anything sent here
+        // would be ignored, so sending it only invites confusion.
         router.post(route('pos.checkout'), {
             items,
             payment_method: paymentMethod,
-            total_amount: total,
-            tendered_amount: paymentMethod === 'cash' ? (tenderedCash ? tenderedCash : total) : total,
-            change_due: changeDue,
+            tendered_amount: paymentMethod === 'cash'
+                ? (tenderedCash !== '' ? parseFloat(tenderedCash) : total)
+                : undefined,
         }, {
+            preserveScroll: true,
             onSuccess: () => {
                 setCart([]);
                 setTenderedCash('');
+                setCheckoutErrors({});
+            },
+            // Validation failures (insufficient stock, underpaid cash) arrive
+            // here; surface them instead of failing the sale silently.
+            onError: (errors) => {
+                setCheckoutErrors(errors as Record<string, string>);
+            },
+            // Runs on success, validation error and hard failure alike, so the
+            // button can never stay stuck on "Processing...".
+            onFinish: () => {
                 setIsProcessing(false);
             },
-            onError: () => {
-                setIsProcessing(false);
-            }
         });
     };
 
@@ -121,6 +133,18 @@ export default function Index({ auth, products, flash = {} }: Props) {
                 <div className="mb-4 p-4 bg-green-50 text-green-800 rounded-lg border border-green-200 flex items-center gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-600" />
                     <span className="font-medium">{flash.success}</span>
+                </div>
+            )}
+
+            {Object.keys(checkoutErrors).length > 0 && (
+                <div className="mb-4 p-4 bg-red-50 text-red-800 rounded-lg border border-red-200 flex items-start gap-2">
+                    <ShieldAlert className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
+                    <div className="space-y-1">
+                        <p className="font-medium">Could not complete the sale</p>
+                        {Object.values(checkoutErrors).map((msg, i) => (
+                            <p key={i} className="text-sm">{msg}</p>
+                        ))}
+                    </div>
                 </div>
             )}
 
@@ -309,7 +333,7 @@ export default function Index({ auth, products, flash = {} }: Props) {
                                             className="text-lg font-mono"
                                         />
                                         <div className="grid grid-cols-4 gap-2">
-                                            <Button variant="outline" size="sm" onClick={() => setTenderedCash(total.toString())}>Exact</Button>
+                                            <Button variant="outline" size="sm" onClick={() => setTenderedCash(total.toFixed(2))}>Exact</Button>
                                             <Button variant="outline" size="sm" onClick={() => setTenderedCash('10')}>$10</Button>
                                             <Button variant="outline" size="sm" onClick={() => setTenderedCash('20')}>$20</Button>
                                             <Button variant="outline" size="sm" onClick={() => setTenderedCash('50')}>$50</Button>

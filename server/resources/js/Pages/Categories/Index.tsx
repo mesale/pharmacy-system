@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, useForm } from '@inertiajs/react';
 import { Tags, Plus, X, Save, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/Components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
+import { Button } from '@/Components/ui/button';
+import { Input } from '@/Components/ui/input';
 
 interface Category {
     id: number;
@@ -43,7 +43,7 @@ export default function Index({ auth, categories }: Props) {
             <div className="flex flex-col gap-6 w-full pb-12">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-6">
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight text-gray-900">Categories</h2>
+                        <h2 className="text-3xl font-bold tracking-tight text-foreground">Categories</h2>
                         <p className="text-muted-foreground mt-1">Manage product categories for your inventory.</p>
                     </div>
                     {isAdmin && (
@@ -63,9 +63,9 @@ export default function Index({ auth, categories }: Props) {
                 </div>
 
                 {isCreating && (
-                    <Card className="border-emerald-200 shadow-sm">
-                        <CardHeader className="bg-emerald-50/50 pb-4">
-                            <CardTitle className="text-emerald-800 text-lg">New Category</CardTitle>
+                    <Card className="ring-emerald-500/30">
+                        <CardHeader className="bg-emerald-500/5 pb-4">
+                            <CardTitle className="text-emerald-700 dark:text-emerald-400 text-lg">New Category</CardTitle>
                             <CardDescription>Create a new category to group your products.</CardDescription>
                         </CardHeader>
                         <CardContent className="pt-4">
@@ -117,7 +117,7 @@ export default function Index({ auth, categories }: Props) {
                                         <TableRow key={category.id}>
                                             <TableCell className="font-mono text-muted-foreground">{category.id}</TableCell>
                                             <TableCell className="font-medium">{category.name}</TableCell>
-                                            <TableCell className="text-right font-medium text-emerald-600">
+                                            <TableCell className="text-right font-medium text-emerald-600 dark:text-emerald-400">
                                                 {category.products_count}
                                             </TableCell>
                                         </TableRow>

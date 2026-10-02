@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { Package, Plus, X, Search, Filter, Save, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/Components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
+import { Button } from '@/Components/ui/button';
+import { Input } from '@/Components/ui/input';
+import { Badge } from '@/Components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
+import { Checkbox } from '@/Components/ui/checkbox';
 
 interface Product {
     id: number;
@@ -20,6 +20,7 @@ interface Product {
     requires_prescription: boolean;
     is_controlled: boolean;
     total_stock: number;
+    sellable_stock: number;
     category: { id: number; name: string } | null;
 }
 
@@ -44,7 +45,7 @@ export default function Index({ auth, products, categories }: Props) {
     const [categoryFilter, setCategoryFilter] = useState('');
     const [isCreating, setIsCreating] = useState(false);
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors, reset, transform } = useForm({
         name: '',
         barcode: '',
         unit: 'Pieces',
@@ -57,11 +58,22 @@ export default function Index({ auth, products, categories }: Props) {
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        router.get(route('products.index'), { search, category_id: categoryFilter || undefined }, { preserveState: true });
+        // "none" is the sentinel for "All Categories" (Radix Select forbids an
+        // empty-string item value). It must not be sent as a real category_id,
+        // or the query filters to a category that cannot exist and returns nothing.
+        const category_id = categoryFilter && categoryFilter !== 'none' ? categoryFilter : undefined;
+        router.get(route('products.index'), { search, category_id }, { preserveState: true });
     };
 
     const submitCreate = (e: React.FormEvent) => {
         e.preventDefault();
+        // Map the "No Category" sentinel to empty so Laravel's nullable rule
+        // accepts it; sending "none" fails the exists rule and the product is
+        // silently never created.
+        transform((d) => ({
+            ...d,
+            category_id: d.category_id === 'none' ? '' : d.category_id,
+        }));
         post(route('products.store'), {
             onSuccess: () => {
                 reset();
@@ -81,7 +93,7 @@ export default function Index({ auth, products, categories }: Props) {
             <div className="flex flex-col gap-6 w-full pb-12">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-6">
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight text-gray-900">Inventory Stock</h2>
+                        <h2 className="text-3xl font-bold tracking-tight text-foreground">Inventory Stock</h2>
                         <p className="text-muted-foreground mt-1">Manage medicines, pricing, and stock levels.</p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -99,9 +111,9 @@ export default function Index({ auth, products, categories }: Props) {
                 </div>
 
                 {isCreating && (
-                    <Card className="border-emerald-200 shadow-sm">
-                        <CardHeader className="bg-emerald-50/50 pb-4">
-                            <CardTitle className="text-emerald-800 text-lg">New Product Registration</CardTitle>
+                    <Card className="ring-emerald-500/30">
+                        <CardHeader className="bg-emerald-500/5 pb-4">
+                            <CardTitle className="text-emerald-700 dark:text-emerald-400 text-lg">New Product Registration</CardTitle>
                             <CardDescription>Enter the details of the new medication or item into the system.</CardDescription>
                         </CardHeader>
                         <CardContent className="pt-4">
@@ -129,6 +141,7 @@ export default function Index({ auth, products, categories }: Props) {
                                                 ))}
                                             </SelectContent>
                                         </Select>
+                                        {errors.category_id && <p className="text-red-500 text-xs mt-1">{errors.category_id}</p>}
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium leading-none">Unit Measure</label>
@@ -137,6 +150,7 @@ export default function Index({ auth, products, categories }: Props) {
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium leading-none">Selling Price ($) <span className="text-red-500">*</span></label>
                                         <Input type="number" step="0.01" min="0" placeholder="0.00" value={data.selling_price} onChange={e => setData('selling_price', e.target.value)} required />
+                                        {errors.selling_price && <p className="text-red-500 text-xs mt-1">{errors.selling_price}</p>}
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium leading-none">Reorder Alert Level</label>
@@ -209,13 +223,20 @@ export default function Index({ auth, products, categories }: Props) {
                                     </TableRow>
                                 ) : (
                                     products.data.map((product) => {
-                                        const isLowStock = product.total_stock <= product.reorder_level;
-                                        const isOutOfStock = product.total_stock <= 0;
-                                        
+                                        // "Available" must mean stock that can actually be dispensed:
+                                        // in date and on hand. total_stock includes expired units, so
+                                        // using it here overstated what a worker could sell. withSum
+                                        // yields null when a product has no batches at all.
+                                        const sellable = product.sellable_stock ?? 0;
+                                        const onHand = product.total_stock ?? 0;
+                                        const expired = Math.max(0, onHand - sellable);
+                                        const isLowStock = sellable <= product.reorder_level;
+                                        const isOutOfStock = sellable <= 0;
+
                                         return (
                                             <TableRow key={product.id}>
                                                 <TableCell>
-                                                    <div className="font-medium text-gray-900">{product.name}</div>
+                                                    <div className="font-medium text-foreground">{product.name}</div>
                                                     <div className="text-xs text-muted-foreground font-mono">{product.barcode || 'No Barcode'}</div>
                                                 </TableCell>
                                                 <TableCell className="text-muted-foreground text-sm">
@@ -226,23 +247,26 @@ export default function Index({ auth, products, categories }: Props) {
                                                 </TableCell>
                                                 <TableCell className="text-right">
                                                     <div className={`font-bold inline-flex items-center gap-1 ${
-                                                        isOutOfStock ? 'text-red-600' : isLowStock ? 'text-amber-600' : 'text-emerald-600'
+                                                        isOutOfStock ? 'text-red-600 dark:text-red-400' : isLowStock ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'
                                                     }`}>
                                                         {isLowStock && <AlertCircle className="h-3 w-3" />}
-                                                        {product.total_stock} {product.unit}
+                                                        {sellable} {product.unit}
                                                     </div>
+                                                    {expired > 0 && (
+                                                        <div className="text-[11px] text-muted-foreground mt-0.5">
+                                                            +{expired} expired
+                                                        </div>
+                                                    )}
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="flex gap-1 flex-wrap">
-                                                        {product.requires_prescription && <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100">Rx Required</Badge>}
-                                                        {product.is_controlled && <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-200">Controlled</Badge>}
+                                                        {product.requires_prescription && <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">Rx Required</Badge>}
+                                                        {product.is_controlled && <Badge variant="destructive">Controlled</Badge>}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button asChild variant="outline" size="sm">
-                                                        <Link href={route('products.show', product.id)}>
-                                                            Manage Stock
-                                                        </Link>
+                                                    <Button render={<Link href={route('products.show', product.id)} />} variant="outline" size="sm">
+                                                        Manage Stock
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>
@@ -261,12 +285,10 @@ export default function Index({ auth, products, categories }: Props) {
                                             key={i}
                                             variant={link.active ? "default" : "outline"}
                                             size="sm"
-                                            asChild
+                                            render={<Link href={link.url || '#'} dangerouslySetInnerHTML={{ __html: link.label }} />}
                                             disabled={!link.url}
                                             className={link.url ? "" : "opacity-50 pointer-events-none"}
-                                        >
-                                            <Link href={link.url || '#'} dangerouslySetInnerHTML={{ __html: link.label }} />
-                                        </Button>
+                                        />
                                     ))}
                                 </div>
                             </div>

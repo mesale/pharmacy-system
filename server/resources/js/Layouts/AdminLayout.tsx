@@ -11,7 +11,7 @@ import {
     SidebarFooter,
     SidebarInset,
     SidebarTrigger
-} from "@/components/ui/sidebar";
+} from "@/Components/ui/sidebar";
 import {
     Activity,
     ShoppingCart,
@@ -26,8 +26,8 @@ import {
     Moon,
     Monitor
 } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/Components/ui/button";
+import { Separator } from "@/Components/ui/separator";
 import { useAppearance, type Appearance } from "@/hooks/use-appearance";
 import {
   DropdownMenu,
@@ -36,7 +36,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/Components/ui/dropdown-menu";
 
 const THEME_OPTIONS: { key: Appearance; label: string; icon: typeof Sun }[] = [
     { key: 'light', label: 'Light', icon: Sun },
@@ -135,31 +135,27 @@ export default function AdminLayout({ children }: PropsWithChildren) {
                         <ThemeToggle />
                     </div>
                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="w-full justify-start h-auto p-2">
-                                <div className="flex items-center gap-3">
-                                    <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold">
-                                        {user.name.charAt(0)}
-                                    </div>
-                                    <div className="flex flex-col items-start flex-1 text-sm overflow-hidden">
-                                        <span className="font-semibold truncate">{user.name}</span>
-                                        <span className="text-xs text-muted-foreground truncate">{isAdmin ? 'Administrator' : 'Worker'}</span>
-                                    </div>
+                        <DropdownMenuTrigger render={<Button variant="ghost" className="w-full justify-start h-auto p-2" />}>
+                            <div className="flex items-center gap-3">
+                                <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold">
+                                    {user.name.charAt(0)}
                                 </div>
-                            </Button>
+                                <div className="flex flex-col items-start flex-1 text-sm overflow-hidden">
+                                    <span className="font-semibold truncate">{user.name}</span>
+                                    <span className="text-xs text-muted-foreground truncate">{isAdmin ? 'Administrator' : 'Worker'}</span>
+                                </div>
+                            </div>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
                             <DropdownMenuLabel>My Account</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild>
-                                <Link href={route('profile.edit')} className="cursor-pointer w-full">Profile Settings</Link>
+                            <DropdownMenuItem render={<Link href={route('profile.edit')} className="cursor-pointer w-full" />}>
+                                Profile Settings
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild className="text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer">
-                                <Link href={route('logout')} method="post" as="button" className="w-full flex items-center">
-                                    <LogOut className="mr-2 h-4 w-4" />
-                                    <span>Log out</span>
-                                </Link>
+                            <DropdownMenuItem className="text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer" render={<Link href={route('logout')} method="post" as="button" className="w-full flex items-center" />}>
+                                <LogOut className="mr-2 h-4 w-4" />
+                                <span>Log out</span>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

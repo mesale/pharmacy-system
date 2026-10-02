@@ -2,6 +2,9 @@ import React from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, useForm } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
+import { Input } from '@/Components/ui/input';
+import { Checkbox } from '@/Components/ui/checkbox';
+import { Card, CardContent } from '@/Components/ui/card';
 
 interface Category {
     id: number;
@@ -24,12 +27,11 @@ interface Props {
     };
 }
 
-const INPUT_CLASS =
-    'mt-1 block w-full bg-white shadow-sm rounded-lg border border-gray-300 text-gray-900 ' +
-    'placeholder:text-gray-500 focus:border-emerald-600 focus:ring-1 focus:ring-primary py-2 px-3 text-sm';
-const LABEL_CLASS =
-    'block text-xs font-bold text-gray-600 uppercase tracking-wider';
-const ERROR_CLASS = 'text-red-600 text-xs mt-1 font-bold';
+const LABEL = 'text-sm font-medium leading-none';
+const CONTROL =
+    'h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm text-foreground outline-none transition-colors ' +
+    'placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50';
+const ERROR = 'text-red-500 text-xs mt-1';
 
 export default function Create({ auth, categories, product }: Props) {
     const isEditing = !!product;
@@ -60,38 +62,42 @@ export default function Create({ auth, categories, product }: Props) {
         <AdminLayout>
             <Head title={isEditing ? 'Edit Product' : 'Add Product'} />
 
-            <div className="py-6">
-                <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                        {isEditing ? 'Edit' : 'Add'} Product
-                    </h2>
-                    <div className="bg-white shadow-md rounded-lg border border-gray-200 p-6 shadow">
-                        <form onSubmit={submit} className="space-y-gap-lg">
+            <div className="flex flex-col gap-6 w-full max-w-3xl pb-12">
+                <div className="mt-6">
+                    <h2 className="text-3xl font-bold tracking-tight text-foreground">{isEditing ? 'Edit' : 'Add'} Product</h2>
+                    <p className="text-muted-foreground mt-1">
+                        {isEditing ? 'Update the catalogue details for this product.' : 'Register a new medication or item in the catalogue.'}
+                    </p>
+                </div>
+
+                <Card>
+                    <CardContent>
+                        <form onSubmit={submit} className="flex flex-col gap-4">
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <div className="sm:col-span-2">
-                                    <label className={LABEL_CLASS}>Product Name *</label>
-                                    <input type="text" className={INPUT_CLASS} value={data.name} onChange={e => setData('name', e.target.value)} required />
-                                    {errors.name && <p className={ERROR_CLASS}>{errors.name}</p>}
+                                <div className="space-y-2 sm:col-span-2">
+                                    <label className={LABEL}>Product Name <span className="text-red-500">*</span></label>
+                                    <Input type="text" value={data.name} onChange={e => setData('name', e.target.value)} required />
+                                    {errors.name && <p className={ERROR}>{errors.name}</p>}
                                 </div>
 
-                                <div>
-                                    <label className={LABEL_CLASS}>Category</label>
-                                    <select className={INPUT_CLASS} value={data.category_id} onChange={e => setData('category_id', e.target.value)}>
+                                <div className="space-y-2">
+                                    <label className={LABEL}>Category</label>
+                                    <select className={CONTROL} value={data.category_id} onChange={e => setData('category_id', e.target.value)}>
                                         <option value="">None</option>
                                         {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                     </select>
-                                    {errors.category_id && <p className={ERROR_CLASS}>{errors.category_id}</p>}
+                                    {errors.category_id && <p className={ERROR}>{errors.category_id}</p>}
                                 </div>
 
-                                <div>
-                                    <label className={LABEL_CLASS}>Barcode</label>
-                                    <input type="text" className={`${INPUT_CLASS} font-mono`} value={data.barcode} onChange={e => setData('barcode', e.target.value)} placeholder="Scan or enter barcode" />
-                                    {errors.barcode && <p className={ERROR_CLASS}>{errors.barcode}</p>}
+                                <div className="space-y-2">
+                                    <label className={LABEL}>Barcode</label>
+                                    <Input type="text" className="font-mono" value={data.barcode} onChange={e => setData('barcode', e.target.value)} placeholder="Scan or enter barcode" />
+                                    {errors.barcode && <p className={ERROR}>{errors.barcode}</p>}
                                 </div>
 
-                                <div>
-                                    <label className={LABEL_CLASS}>Unit</label>
-                                    <select className={INPUT_CLASS} value={data.unit} onChange={e => setData('unit', e.target.value)}>
+                                <div className="space-y-2">
+                                    <label className={LABEL}>Unit</label>
+                                    <select className={CONTROL} value={data.unit} onChange={e => setData('unit', e.target.value)}>
                                         <option value="tablet">Tablet</option>
                                         <option value="bottle">Bottle</option>
                                         <option value="box">Box</option>
@@ -100,30 +106,30 @@ export default function Create({ auth, categories, product }: Props) {
                                         <option value="vial">Vial</option>
                                         <option value="ampoule">Ampoule</option>
                                     </select>
-                                    {errors.unit && <p className={ERROR_CLASS}>{errors.unit}</p>}
+                                    {errors.unit && <p className={ERROR}>{errors.unit}</p>}
                                 </div>
 
-                                <div>
-                                    <label className={LABEL_CLASS}>Selling Price *</label>
-                                    <input type="number" step="0.01" min="0" className={INPUT_CLASS} value={data.selling_price} onChange={e => setData('selling_price', e.target.value)} required />
-                                    {errors.selling_price && <p className={ERROR_CLASS}>{errors.selling_price}</p>}
+                                <div className="space-y-2">
+                                    <label className={LABEL}>Selling Price <span className="text-red-500">*</span></label>
+                                    <Input type="number" step="0.01" min="0" value={data.selling_price} onChange={e => setData('selling_price', e.target.value)} required />
+                                    {errors.selling_price && <p className={ERROR}>{errors.selling_price}</p>}
                                 </div>
 
-                                <div>
-                                    <label className={LABEL_CLASS}>Reorder Level</label>
-                                    <input type="number" min="0" className={INPUT_CLASS} value={data.reorder_level} onChange={e => setData('reorder_level', e.target.value)} />
-                                    {errors.reorder_level && <p className={ERROR_CLASS}>{errors.reorder_level}</p>}
+                                <div className="space-y-2">
+                                    <label className={LABEL}>Reorder Level</label>
+                                    <Input type="number" min="0" value={data.reorder_level} onChange={e => setData('reorder_level', e.target.value)} />
+                                    {errors.reorder_level && <p className={ERROR}>{errors.reorder_level}</p>}
                                 </div>
 
-                                <div className="sm:col-span-2 flex gap-6 border-t border-gray-300 pt-gap-md">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" className="bg-white shadow-sm rounded-lg border-gray-300 text-emerald-600 focus:ring-primary" checked={data.requires_prescription} onChange={e => setData('requires_prescription', e.target.checked)} />
-                                        <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">Requires Prescription</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" className="bg-white shadow-sm rounded-lg border-gray-300 text-red-600 focus:ring-status-critical" checked={data.is_controlled} onChange={e => setData('is_controlled', e.target.checked)} />
-                                        <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">Controlled Substance</span>
-                                    </label>
+                                <div className="sm:col-span-2 flex flex-wrap gap-6 border-t border-border pt-4">
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox id="req_rx" checked={data.requires_prescription} onCheckedChange={(c) => setData('requires_prescription', !!c)} />
+                                        <label htmlFor="req_rx" className="text-sm font-medium leading-none cursor-pointer">Requires Prescription</label>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox id="ctrl" checked={data.is_controlled} onCheckedChange={(c) => setData('is_controlled', !!c)} />
+                                        <label htmlFor="ctrl" className="text-sm font-medium leading-none cursor-pointer">Controlled Substance</label>
+                                    </div>
                                 </div>
                             </div>
 
@@ -132,8 +138,8 @@ export default function Create({ auth, categories, product }: Props) {
                                 <Button type="submit" disabled={processing}>{isEditing ? 'Update' : 'Create'} Product</Button>
                             </div>
                         </form>
-                    </div>
-                </div>
+                    </CardContent>
+                </Card>
             </div>
         </AdminLayout>
     );

@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, useForm, router } from '@inertiajs/react';
 import { Users, Plus, X, Save, Pencil, Trash2, Shield, User } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/Components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
+import { Button } from '@/Components/ui/button';
+import { Input } from '@/Components/ui/input';
+import { Badge } from '@/Components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 
 interface UserObj {
     id: number;
@@ -81,7 +81,7 @@ export default function Index({ auth, users }: Props) {
             <div className="flex flex-col gap-6 w-full pb-12">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-6">
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight text-gray-900">Staff Accounts</h2>
+                        <h2 className="text-3xl font-bold tracking-tight text-foreground">Staff Accounts</h2>
                         <p className="text-muted-foreground mt-1">Manage system access, worker credentials, and roles.</p>
                     </div>
                     {isAdmin && (
@@ -104,9 +104,9 @@ export default function Index({ auth, users }: Props) {
                 </div>
 
                 {(isCreating || editingUser) && (
-                    <Card className="border-emerald-200 shadow-sm">
-                        <CardHeader className="bg-emerald-50/50 pb-4">
-                            <CardTitle className="text-emerald-800 text-lg">
+                    <Card className="ring-emerald-500/30">
+                        <CardHeader className="bg-emerald-500/5 pb-4">
+                            <CardTitle className="text-emerald-700 dark:text-emerald-400 text-lg">
                                 {isCreating ? 'Provision New Account' : `Edit Account: ${editingUser?.name}`}
                             </CardTitle>
                             <CardDescription>
@@ -197,17 +197,17 @@ export default function Index({ auth, users }: Props) {
                                         const role = user.roles[0]?.name || 'Unknown';
                                         
                                         return (
-                                            <TableRow key={user.id} className={isCurrentUser ? 'bg-emerald-50/30' : ''}>
+                                            <TableRow key={user.id} className={isCurrentUser ? 'bg-emerald-500/5' : ''}>
                                                 <TableCell className="font-medium">
                                                     <div className="flex items-center gap-2">
-                                                        {role === 'admin' ? <Shield className="h-4 w-4 text-amber-600" /> : <User className="h-4 w-4 text-gray-500" />}
+                                                        {role === 'admin' ? <Shield className="h-4 w-4 text-amber-600 dark:text-amber-400" /> : <User className="h-4 w-4 text-muted-foreground" />}
                                                         {user.name}
-                                                        {isCurrentUser && <Badge className="ml-2 bg-emerald-100 text-emerald-700 hover:bg-emerald-100">You</Badge>}
+                                                        {isCurrentUser && <Badge className="ml-2 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-transparent">You</Badge>}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-muted-foreground">{user.email}</TableCell>
                                                 <TableCell>
-                                                    <Badge variant={role === 'admin' ? 'default' : 'secondary'} className={role === 'admin' ? 'bg-amber-600 hover:bg-amber-700' : ''}>
+                                                    <Badge variant={role === 'admin' ? 'default' : 'secondary'} className={role === 'admin' ? 'bg-amber-500 text-white hover:bg-amber-600 border-transparent' : ''}>
                                                         {role === 'admin' ? 'Administrator' : 'Worker'}
                                                     </Badge>
                                                 </TableCell>

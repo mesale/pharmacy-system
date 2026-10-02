@@ -2,6 +2,7 @@ import { transformFileSync } from '@babel/core';
 
 const files = [
   'App.js',
+  'src/api.js',
   'src/theme.js',
   'src/theme-context.js',
   'src/components/ui.js',
