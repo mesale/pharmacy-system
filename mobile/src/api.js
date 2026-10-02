@@ -24,7 +24,12 @@ function resolveHost() {
 }
 
 export const API_HOST = resolveHost();
-export const API_URL = `http://${API_HOST}:8000/api`;
+
+// Use the production Render backend when building the standalone APK,
+// otherwise use the local dev machine IP for local Expo testing.
+export const API_URL = __DEV__ 
+  ? `http://${API_HOST}:8000/api` 
+  : `https://pharmacy-system-z3dd.onrender.com/api`;
 
 const api = axios.create({
   baseURL: API_URL,
